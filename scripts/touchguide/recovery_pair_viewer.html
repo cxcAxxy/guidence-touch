@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>单条增强配对 · 动态恢复检查</title>
+<style>
+:root{color-scheme:light;--ink:#233e52;--muted:#627687;--border:#dce5ed;--blue:#2477cc}
+*{box-sizing:border-box}body{margin:0;background:#f0f4f8;color:var(--ink);font:14px system-ui,"Microsoft YaHei",sans-serif}
+main{max-width:1500px;margin:22px auto;padding:0 20px}h1{font-size:23px;margin:0 0 8px}h2{font-size:17px;margin:0 0 12px}
+p{line-height:1.7;margin:8px 0}.muted,small{color:var(--muted)}.tiny{font-size:12px}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px}.meta{margin:8px 0 16px;color:var(--muted);font-size:13px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:8px 0}
+button,select{border:1px solid #bfcedb;border-radius:6px;background:#fff;color:var(--ink);padding:7px 10px;font:inherit;cursor:pointer}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}label{display:inline-flex;align-items:center;gap:6px}
+input[type=range]{accent-color:var(--blue)}#step{flex:1;min-width:180px}#stepLabel{min-width:150px;font-variant-numeric:tabular-nums}
+.layout{display:grid;grid-template-columns:minmax(460px,1.18fr) minmax(420px,1fr);gap:16px;margin-top:16px}.sticky{position:sticky;top:14px;align-self:start}
+#scene{width:100%;height:560px;display:block;border-radius:8px;background:#f6f9fc;touch-action:none;cursor:grab}#scene:active{cursor:grabbing}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;margin:10px 0}.dot{width:10px;height:10px;display:inline-block;border-radius:50%;margin-right:5px}
+.readout{display:flex;gap:12px;flex-wrap:wrap;background:#f4f8fc;padding:10px;border-radius:7px;font-size:12px;font-variant-numeric:tabular-nums}
+.detail-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.detail-head h2{margin:0}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 18px}.tab{padding:9px 4px;background:#f7f9fc;font-size:13px}.tab.active{background:#e7f1fd;color:#175fa9;border-color:#78a8df;font-weight:600}
+.panel{min-height:360px}.panel[hidden]{display:none}table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+th,td{padding:11px 5px;border-bottom:1px solid #e5edf3;text-align:right}th:first-child,td:first-child{text-align:left}thead{color:#496375}
+td.current{color:#175fa9;font-weight:600}.status{padding:12px;background:#f4f8fc;border-radius:6px;margin:12px 0}
+.heatgrid{display:grid;grid-template-columns:66px repeat(3,minmax(0,1fr));gap:6px;align-items:center;text-align:center;font-size:12px}
+.heatgrid canvas{width:100%;height:155px;display:block}.heatrow{text-align:left;color:var(--muted)}.plot-card{margin:12px 0}.plot-card canvas{width:100%;height:205px;display:block}
+details{margin:16px 0}summary{cursor:pointer;color:#496375;font-size:13px}.formula{font-family:ui-monospace,monospace;overflow-wrap:anywhere;background:#f6f8fa;padding:10px;border-radius:5px}
+footer{padding:16px 0;font-size:12px;color:var(--muted);line-height:1.7;word-break:break-all}.section{margin-top:16px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.sticky{position:static}#scene{height:500px}}
+@media(max-width:550px){main{padding:0 8px}.card{padding:12px}.layout{display:block}.layout>.card{margin:12px 0}#scene{height:400px}.heatgrid{grid-template-columns:45px repeat(3,1fr)}.heatgrid canvas{height:125px}.tab{font-size:12px}.tabs{gap:4px}}
+</style></head>
+<body><main>
+<h1>增强 state → 干净起点 · 动态恢复检查</h1>
+<div class="meta" id="meta"></div>
+<div class="toolbar"><label>增强 state<select id="pair"></select></label><span class="muted tiny">选择不同扰动，比较它们恢复到同一干净起点的过程。</span></div>
+<div class="card"><div class="toolbar">
+<button id="play" class="primary">播放</button><button id="back">−1 步</button><button id="next">+1 步</button><button id="reset">回到起点</button>
+<input id="step" type="range" min="0" max="30" value="0" step="1"><b id="stepLabel"></b>
+<label>速度<select id="speed"><option value="0.25" selected>0.25× 慢放</option><option value="0.5">0.5×</option><option value="1">1×</option></select></label><label><input id="loop" type="checkbox" checked>循环</label>
+</div></div>
+<div class="layout">
+<section class="card sticky">
+<h2>手部和场景</h2>
+<div class="toolbar"><label><input id="focus" type="checkbox">联动近景：只看所选手指</label></div>
+<div class="toolbar"><button id="oblique">斜视</button><button id="top">顶部</button><button id="side">侧视</button><button id="cameraReset">重置视角</button><label><input id="ghost" type="checkbox" checked>目标轮廓</label><label><input id="showScene" type="checkbox" checked>牌桌</label><label><input id="pads" type="checkbox" checked>触觉接触点</label></div>
+<canvas id="scene" width="900" height="700" aria-label="手部三维恢复与所选手指高亮"></canvas>
+<div class="legend"><span><i class="dot" style="background:#a6afb8"></i>未选中：灰色</span><span><i class="dot" style="background:#2477cc"></i>选中：蓝色</span><span>虚线：所选指干净目标</span></div>
+<div id="tipReadout" class="readout"></div>
+<p class="muted tiny">右侧换手指会同步高亮；打开“联动近景”会自动切到该手指。拖动旋转，滚轮缩放。橙色测点随合成法向力改变亮度和大小；无接触时不显示高亮。手部姿态与数值保持真实比例。</p>
+</section>
+<section class="card">
+<div class="detail-head"><h2>所选手指数据</h2><label>手指<select id="finger"></select></label></div>
+<div class="tabs" role="group" aria-label="显示内容">
+<button id="tab-joints" class="tab active" aria-pressed="true">关节弧度</button><button id="tab-force" class="tab" aria-pressed="false">三向合力</button><button id="tab-tactile" class="tab" aria-pressed="false">触觉图像</button><button id="tab-curves" class="tab" aria-pressed="false">变化曲线</button>
+</div>
+<h2 id="detailTitle"></h2>
+<section id="panel-joints" class="panel">
+<table id="jointTable"><thead><tr><th>关节</th><th>增强 / rad</th><th>当前 / rad</th><th>干净 / rad</th><th>当前−干净 / rad</th></tr></thead><tbody></tbody></table>
+<p id="passive" class="muted tiny"></p><p class="muted tiny">表格为保存的绝对关节目标；“当前−干净”在恢复终点归零。这里全部使用弧度。</p>
+</section>
+<section id="panel-force" class="panel" hidden>
+<table id="touchTable"><thead><tr><th>方向</th><th>增强 / N</th><th>当前 / N</th><th>干净 / N</th></tr></thead><tbody></tbody></table>
+<div id="contactStatus" class="status"></div>
+<p class="muted tiny">三向合力分别是 35 个测点在 Fn、Ft1、Ft2 方向的力之和；切向分量保留正负号。接触判定：Fn &gt; 0.001 N。</p>
+<details><summary>这些触觉力如何合成？</summary>
+<p>先用 FK 得到当前指尖相对干净指尖的位移，投影到原始接触的远离法向。法向远离会减力，靠近会增力。</p>
+<div class="formula">gain = clip(1 − 法向远离位移 / 1 mm, 0, 3)<br>新的 Fn 合力 = 原始 Fn 合力 × gain</div>
+<p>35 个测点不是 35 个真实接触点。我们保留原始触觉分布，再根据测点移动前后到原接触中心的距离，用记录的高斯核重新加权并归一化，所以测点法向力之和等于上述合力。</p>
+<p>切向力从原始切向分布出发，投影到新的触觉局部坐标，再使用相同空间权重和倍率。它不是由摩擦动力学算出的新力。原来没有可靠接触依据的手指保持原触觉，不凭空生成新接触。</p>
+<p class="muted tiny">1 mm 是当前合成规则设定的卸载距离，不是标定得到的真实刚度；页面接触状态是合力阈值判断，不是重新运行碰撞仿真的结果。</p>
+</details>
+</section>
+<section id="panel-tactile" class="panel" hidden>
+<div class="heatgrid" id="heatgrid"><span></span><b>Fn 法向</b><b>Ft1 切向</b><b>Ft2 切向</b></div>
+<p id="heatScale" class="muted tiny"></p><p class="muted tiny">每幅图为 7 × 5 个测点，单位 N / 测点。同一手指的所有增强样本及步骤共用各通道的固定色标。</p>
+</section>
+<section id="panel-curves" class="panel" hidden>
+<div class="plot-card"><b class="tiny">关节弧度差（当前 − 干净起点）/ rad</b><canvas id="jointPlot"></canvas></div>
+<div class="plot-card"><b class="tiny">所选手指法向合力 Fn / N</b><canvas id="forcePlot"></canvas></div>
+<p class="muted tiny">横轴：步骤 0～30。曲线随播放从第 0 步逐步画到当前步骤，圆点表示当前数值。关节差值恢复到 0；水平虚线表示干净起点，竖虚线表示当前步骤。拖动进度条可展开或收回曲线。</p>
+</section>
+</section></div>
+<footer><b>运动学与合成触觉预览。</b>0 步为增强观测，30 步为干净起点；30 个动作目标约 1 秒。牌桌固定，手臂不变，未运行物理执行。中间触觉按现有规则合成。
+<details><summary>数据来源与导出检查</summary><div id="source"></div><pre id="checks" style="white-space:pre-wrap"></pre></details></footer>
+</main>
+<script id="payload" type="application/json">__PAYLOAD__</script>
+<script>
+'use strict';
+const B=JSON.parse(document.getElementById('payload').textContent), $=id=>document.getElementById(id);
+const pairs=B.pairs||[B];
+let selectedPair=B.default_pair||0,D={...B,...pairs[selectedPair]};
+const names=['拇指','食指','中指','无名指','小指'], accent='#2477cc';
+const heatBounds=Array.from({length:5},()=>[0,0,0]);
+for(const pair of pairs)for(const frame of pair.frames)for(let f=0;f<5;f++)for(let ch=0;ch<3;ch++)for(const row of frame.tactile[f][ch])for(const v of row)heatBounds[f][ch]=Math.max(heatBounds[f][ch],Math.abs(v));
+let panel='joints';
+let step=0,finger=D.mask.findIndex(Boolean),playing=false,lastTick=null,yaw=2.45,pitch=0.75,zoom=1,drag=null;
+let last=D.frames.length-1;
+const fmt=(v,n=5)=>(Math.abs(v)<0.5*10**(-n)?0:v).toFixed(n);
+const sub=(a,b)=>a.map((x,i)=>x-b[i]),add=(a,b)=>a.map((x,i)=>x+b[i]),mul=(a,s)=>a.map(x=>x*s),dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>Math.hypot(...a);
+const contact=f=>f> D.synthesis_config.contact_threshold_n?'有接触':'无接触';
+function transform(v,p){return [0,1,2].map(i=>p.p[i]+p.r[i*3]*v[0]+p.r[i*3+1]*v[1]+p.r[i*3+2]*v[2]);}
+$('finger').innerHTML=names.map((n,i)=>`<option value="${i}">${n}</option>`).join('');$('finger').value=finger;
+$('pair').innerHTML=pairs.map((pair,i)=>{const active=pair.mask.map((yes,f)=>yes?names[f]:'').filter(Boolean).join('、');const lost=pair.frames[0].force.filter((force,f)=>force[0]<=pair.synthesis_config.contact_threshold_n&&pair.frames.at(-1).force[f][0]>pair.synthesis_config.contact_threshold_n).length;return `<option value="${i}">样本 ${i+1} · ${active} · ${lost} 指恢复接触</option>`;}).join('');
+$('pair').value=selectedPair;
+function refreshMetadata(){
+ $('meta').textContent=`episode ${D.episode} · 原帧 ${D.frame} · 干净 row ${D.row} · 样本 ${selectedPair+1} / ${pairs.length} · variant ${D.variant} · ${D.phase}`;
+ $('source').textContent=`数据：${D.root} · ${pairs.length} 组可选增强 state · 页面自包含。`;
+ $('checks').textContent=JSON.stringify({...D.checks,起点触觉重算最大误差_N:D.initial_recompute_max_error_n,终点触觉重算最大误差_N:D.endpoint_recompute_max_error_n},null,2);
+}
+refreshMetadata();
+const heatCanvases=[];
+['增强起点','当前步骤','干净目标'].forEach((label,row)=>{const title=document.createElement('span');title.className='heatrow';title.textContent=label;$('heatgrid').appendChild(title);heatCanvases[row]=[];for(let ch=0;ch<3;ch++){const c=document.createElement('canvas');c.width=170;c.height=180;$('heatgrid').appendChild(c);heatCanvases[row][ch]=c;}});
+
+function canvasSize(canvas){const rect=canvas.getBoundingClientRect(),ratio=window.devicePixelRatio||1;const w=Math.max(200,rect.width),h=Math.max(100,rect.height);if(canvas.width!==Math.round(w*ratio)||canvas.height!==Math.round(h*ratio)){canvas.width=Math.round(w*ratio);canvas.height=Math.round(h*ratio);}const ctx=canvas.getContext('2d');ctx.setTransform(ratio,0,0,ratio,0,0);return {ctx,w,h};}
+function shade(hex,light){const rgb=hex.slice(1).match(/../g).map(v=>parseInt(v,16));return `rgb(${rgb.map(c=>Math.round(c*light)).join(',')})`;}
+function camera(){const verts=[];D.objects.forEach((o,i)=>{if(o.finger===-2)return;if($('focus').checked&&o.finger!==finger)return;o.vertices.forEach(v=>verts.push(transform(v,D.frames[last].poses[i])));});const lo=[0,1,2].map(j=>Math.min(...verts.map(v=>v[j]))),hi=[0,1,2].map(j=>Math.max(...verts.map(v=>v[j])));const center=lo.map((v,i)=>(v+hi[i])/2),span=Math.max(...sub(hi,lo));const distance=Math.max(span*1.8,0.04)/zoom;return {center,distance,right:[Math.cos(yaw),Math.sin(yaw),0],up:[-Math.sin(yaw)*Math.sin(pitch),Math.cos(yaw)*Math.sin(pitch),Math.cos(pitch)],forward:[Math.sin(yaw)*Math.cos(pitch),-Math.cos(yaw)*Math.cos(pitch),Math.sin(pitch)]};}
+function outline(points){const sorted=points.slice().sort((a,b)=>a.x-b.x||a.y-b.y);const side=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);const half=pts=>{const h=[];for(const p of pts){while(h.length>=2&&side(h.at(-2),h.at(-1),p)<=0)h.pop();h.push(p);}h.pop();return h;};return half(sorted).concat(half(sorted.slice().reverse()));}
+function clipNear(points,cam,near){const depth=p=>cam.distance-dot(sub(p,cam.center),cam.forward);const out=[];for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length],da=depth(a),db=depth(b);if(da>=near)out.push(a);if((da>=near)!==(db>=near)){const t=(near-da)/(db-da);out.push(add(a,mul(sub(b,a),t)));}}return out;}
+function rasterize(ctx,w,h,triangles){w=Math.round(w);h=Math.round(h);const image=ctx.createImageData(w,h),pixels=image.data,depth=new Float32Array(w*h);for(let y=0;y<h;y++){const t=y/h;for(let x=0;x<w;x++){const i=(y*w+x)*4;pixels[i]=247-14*t;pixels[i+1]=250-10*t;pixels[i+2]=252-6*t;pixels[i+3]=255;}}
+for(const triangle of triangles){const [a,b,c]=triangle.p;const denominator=(b.y-c.y)*(a.x-c.x)+(c.x-b.x)*(a.y-c.y);if(Math.abs(denominator)<1e-8)continue;const left=Math.max(0,Math.floor(Math.min(a.x,b.x,c.x))),right=Math.min(w-1,Math.ceil(Math.max(a.x,b.x,c.x))),top=Math.max(0,Math.floor(Math.min(a.y,b.y,c.y))),bottom=Math.min(h-1,Math.ceil(Math.max(a.y,b.y,c.y)));const rgb=triangle.color.match(/\d+/g).map(Number),ia=1/a.depth,ib=1/b.depth,ic=1/c.depth;for(let y=top;y<=bottom;y++){for(let x=left;x<=right;x++){const wa=((b.y-c.y)*(x+.5-c.x)+(c.x-b.x)*(y+.5-c.y))/denominator,wb=((c.y-a.y)*(x+.5-c.x)+(a.x-c.x)*(y+.5-c.y))/denominator,wc=1-wa-wb;if(wa<0||wb<0||wc<0)continue;const z=wa*ia+wb*ib+wc*ic,index=y*w+x;if(z<=depth[index])continue;depth[index]=z;const i=index*4;pixels[i]=rgb[0];pixels[i+1]=rgb[1];pixels[i+2]=rgb[2];}}}
+const buffer=document.createElement('canvas');buffer.width=w;buffer.height=h;buffer.getContext('2d').putImageData(image,0,0);ctx.drawImage(buffer,0,0,w,h);}
+function renderScene(){const {ctx,w,h}=canvasSize($('scene'));ctx.clearRect(0,0,w,h);const bg=ctx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#f7fafc');bg.addColorStop(1,'#e9f0f6');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);const cam=camera(),focal=Math.min(w,h)*0.94;
+function project(p){const d=sub(p,cam.center),z=dot(d,cam.forward),depth=cam.distance-z;return {x:w/2+focal*dot(d,cam.right)/depth,y:h/2-focal*dot(d,cam.up)/depth,z,depth};}
+const triangles=[];D.objects.forEach((o,i)=>{if(o.finger===-2&&!$('showScene').checked)return;if($('focus').checked&&o.finger!==finger&&o.finger!==-2)return;const pts=o.vertices.map(v=>transform(v,D.frames[step].poses[i]));let color=o.finger===finger?accent:'#a6afb8';if(o.name.includes('table'))color='#c9c8c4';if(o.name==='card_core_geom')color='#edece8';if(o.name==='card_back_visual')color='#dededb';if(o.name==='card_face_visual')color='#fbfaf6';o.faces.forEach(face=>{const normal=cross(sub(pts[face[1]],pts[face[0]]),sub(pts[face[2]],pts[face[0]]));const brightness=0.68+0.3*Math.abs(dot(normal,[0.3,-0.4,0.86]))/Math.max(norm(normal),1e-12);const polygon=clipNear(face.map(v=>pts[v]),cam,0.004);for(let j=1;j<polygon.length-1;j++){const p=[polygon[0],polygon[j],polygon[j+1]].map(project);triangles.push({p,color:shade(color,brightness)});}});});rasterize(ctx,w,h,triangles);
+if($('ghost').checked){ctx.strokeStyle='#374f6580';ctx.lineWidth=0.65;ctx.setLineDash([2,4]);D.objects.forEach((o,i)=>{if(o.finger!==finger)return;const pts=o.vertices.map(v=>project(transform(v,D.frames[last].poses[i]))).filter(p=>p.depth>=0.004);const hull=outline(pts);if(hull.length<3)return;ctx.beginPath();hull.forEach((p,j)=>j?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.stroke();});ctx.setLineDash([]);}
+if($('pads').checked){D.frames[step].taxels_world.forEach((taxels,f)=>{
+ if($('focus').checked&&f!==finger)return;
+ if(D.frames[step].force[f][0]<=D.synthesis_config.contact_threshold_n)return;
+ const map=D.frames[step].tactile[f][0].flat(),bound=heatBounds[f][0];
+ taxels.forEach((p,j)=>{const u=bound>1e-12?map[j]/bound:0;if(u<=1e-5)return;const a=project(p);if(a.depth<=0.004)return;
+  ctx.beginPath();ctx.arc(a.x,a.y,1.3+2*Math.sqrt(u),0,Math.PI*2);
+  ctx.fillStyle=`rgb(${Math.round(224+28*u)},${Math.round(198-73*u)},${Math.round(155-124*u)})`;ctx.fill();
+ });
+});}
+ctx.fillStyle='#48647a';ctx.font='12px system-ui';ctx.fillText(`${names[finger]} · 第 ${step} 步 · ${$('focus').checked?'单指近景':'真实比例'}`,14,24);
+// A true projected world-axis scale near the camera target, in millimetres.
+const length=$('focus').checked?0.005:0.02,a=project(cam.center),b=project(add(cam.center,mul(cam.right,length))),px=Math.abs(b.x-a.x);ctx.strokeStyle='#48647a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(18,h-25);ctx.lineTo(18+px,h-25);ctx.stroke();ctx.fillText(`${length*1000} mm（画面中心比例）`,18,h-36);
+}
+function heat(canvas,map,ch,bound){const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);const cell=Math.min((w-12)/5,(h-28)/7),x=(w-5*cell)/2,y=5;map.forEach((row,r)=>row.forEach((v,c)=>{const t=bound>1e-12?v/bound:0;ctx.fillStyle=ch===0?`rgb(${Math.round(241-224*t)},${Math.round(247-124*t)},${Math.round(250-111*t)})`:t>=0?`rgb(245,${Math.round(245-163*t)},${Math.round(245-177*t)})`:`rgb(${Math.round(245+197*t)},${Math.round(245+117*t)},245)`;ctx.fillRect(x+c*cell,y+r*cell,cell-1,cell-1);}));ctx.fillStyle='#4c6475';ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillText('7 × 5 测点 · 固定色标',w/2,h-5);}
+function plot(id,series,labels,palette,reference){
+ const {ctx,w,h}=canvasSize($(id));ctx.clearRect(0,0,w,h);
+ const l=52,r=12,t=20,b=38,pw=w-l-r,ph=h-t-b;
+ let min=Math.min(0,reference,...series.flat()),max=Math.max(0,reference,...series.flat());
+ if(max-min<1e-10){min-=0.001;max+=0.001;}const pad=(max-min)*.12;min-=pad;max+=pad;
+ const X=i=>l+i/last*pw,Y=v=>t+(max-v)/(max-min)*ph;
+ ctx.font='10px system-ui';ctx.textAlign='right';
+ for(let i=0;i<3;i++){const v=min+(max-min)*i/2;ctx.strokeStyle='#e1e9ef';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(l,Y(v));ctx.lineTo(w-r,Y(v));ctx.stroke();ctx.fillStyle='#526879';ctx.fillText(fmt(v,4),l-5,Y(v)+3);}
+ series.forEach((values,i)=>{
+  // Keep the full-trajectory axis limits fixed while revealing only elapsed steps.
+  ctx.strokeStyle=palette[i];ctx.lineWidth=2;ctx.beginPath();
+  values.slice(0,step+1).forEach((v,j)=>j?ctx.lineTo(X(j),Y(v)):ctx.moveTo(X(j),Y(v)));ctx.stroke();
+  ctx.beginPath();ctx.arc(X(step),Y(values[step]),3,0,Math.PI*2);ctx.fillStyle=palette[i];ctx.fill();
+ });
+ ctx.setLineDash([7,4]);ctx.strokeStyle='#5c6975';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(l,Y(reference));ctx.lineTo(w-r,Y(reference));ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle='#526879';ctx.textAlign='right';ctx.font='11px system-ui';ctx.fillText(`干净起点：${fmt(reference,4)} ${id==='jointPlot'?'rad':'N'}`,w-r,Math.max(t+10,Y(reference)-6));
+ ctx.setLineDash([2,4]);ctx.strokeStyle='#7d8e9c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(step),t);ctx.lineTo(X(step),t+ph);ctx.stroke();ctx.setLineDash([]);
+ ctx.textAlign='left';ctx.font='11px system-ui';labels.forEach((name,i)=>{ctx.fillStyle=palette[i];ctx.fillText(name,l+i*(pw/labels.length),h-5);});
+ ctx.fillStyle='#526879';ctx.fillText('0',l,t+ph+14);ctx.fillText('30 步',w-42,t+ph+14);
+}
+function renderDetail(){
+ const f=D.frames[step],a=D.frames[0],z=D.frames[last],offset=7+4*finger;
+ const titles={joints:'关节弧度',force:'三向合力',tactile:'触觉图像',curves:'变化曲线'};
+ $('detailTitle').textContent=`${names[finger]} · ${titles[panel]}`;
+ if(panel==='joints'){
+  $('jointTable').querySelector('tbody').innerHTML=Array.from({length:4},(_,j)=>{const i=offset+j,name=D.joints[i].split('_').at(-1);return `<tr><td>${name}</td><td>${fmt(a.state[i])}</td><td class="current">${fmt(f.state[i])}</td><td>${fmt(z.state[i])}</td><td>${fmt(f.state[i]-z.state[i],6)}</td></tr>`;}).join('');
+  $('passive').textContent=finger===0?'拇指显示 4 个主动关节；模型中被动 joint6 跟随 joint5，并保留原记录的耦合偏差。':'';
+ }else if(panel==='force'){
+  $('touchTable').querySelector('tbody').innerHTML=['Fn 法向','Ft1 切向1','Ft2 切向2'].map((n,ch)=>`<tr><td>${n}</td>${[a,f,z].map((frame,i)=>`<td class="${i===1?'current':''}">${fmt(frame.force[finger][ch],6)}</td>`).join('')}</tr>`).join('');
+  $('contactStatus').textContent=`接触状态：增强 ${contact(a.force[finger][0])} → 当前 ${contact(f.force[finger][0])} → 干净 ${contact(z.force[finger][0])}`;
+ }else if(panel==='tactile'){
+  const bounds=heatBounds[finger];
+  [a,f,z].forEach((frame,row)=>[0,1,2].forEach(ch=>heat(heatCanvases[row][ch],frame.tactile[finger][ch],ch,bounds[ch])));
+  $('heatScale').textContent=`Fn：0～${fmt(bounds[0],5)}；Ft1：±${fmt(bounds[1],5)}；Ft2：±${fmt(bounds[2],5)} N / 测点。白色接近零；切向红正蓝负。`;
+ }else{
+  plot('jointPlot',Array.from({length:4},(_,j)=>D.frames.map(frame=>frame.state[offset+j]-z.state[offset+j])),['J1','J2','J3',finger===0?'J5':'J4'],['#d45243','#238c55','#276ed5','#9854b8'],0);
+  plot('forcePlot',[D.frames.map(frame=>frame.force[finger][0])],['Fn'],[accent],z.force[finger][0]);
+ }
+}
+function update(){
+ $('step').value=step;$('stepLabel').textContent=`${step} / 30 · ${(step/D.fps).toFixed(2)} s`;
+ const delta=D.frames[step].tip_local_mm[finger];
+ $('tipReadout').innerHTML=`<b>${names[finger]}距干净起点</b><span>法向 ${fmt(delta[0],3)} mm</span><span>切向1 ${fmt(delta[1],3)} mm</span><span>切向2 ${fmt(delta[2],3)} mm</span>`;
+ renderDetail();renderScene();
+}
+function selectPanel(value){
+ panel=value;
+ for(const name of ['joints','force','tactile','curves']){
+  $('panel-'+name).hidden=name!==panel;
+  $('tab-'+name).className='tab'+(name===panel?' active':'');
+  $('tab-'+name).setAttribute('aria-pressed',String(name===panel));
+ }
+ renderDetail();
+}
+function setStep(v){step=Math.max(0,Math.min(last,Number(v)));update();}
+function pause(){playing=false;lastTick=null;$('play').textContent='播放';}
+function tick(timestamp){if(!playing)return;if(lastTick===null)lastTick=timestamp;const interval=1000/(D.fps*Number($('speed').value)),count=Math.floor((timestamp-lastTick)/interval+1e-9);if(count>0){lastTick+=count*interval;const candidate=step+count;if(candidate>last){if($('loop').checked)setStep(candidate%(last+1));else{setStep(last);pause();return;}}else setStep(candidate);}requestAnimationFrame(tick);}
+$('play').onclick=()=>{if(playing){pause();return;}if(step===last)setStep(0);playing=true;lastTick=null;$('play').textContent='暂停';requestAnimationFrame(tick);};
+$('step').oninput=e=>{pause();setStep(e.target.value);};$('back').onclick=()=>{pause();setStep(step-1);};$('next').onclick=()=>{pause();setStep(step+1);};$('reset').onclick=()=>{pause();setStep(0);};$('speed').onchange=()=>{lastTick=null;};
+function selectPair(value){
+ pause();selectedPair=Number(value);D={...B,...pairs[selectedPair]};last=D.frames.length-1;
+ $('pair').value=selectedPair;
+ if(!D.mask[finger])finger=Math.max(0,D.mask.findIndex(Boolean));
+ $('finger').value=finger;refreshMetadata();setStep(0);
+}
+function selectFinger(v){finger=Number(v);$('finger').value=finger;update();}
+$('finger').onchange=e=>selectFinger(e.target.value);
+for(const name of ['joints','force','tactile','curves'])$('tab-'+name).onclick=()=>selectPanel(name);
+$('pair').onchange=e=>selectPair(e.target.value);
+['focus','ghost','showScene','pads'].forEach(id=>$(id).onchange=renderScene);
+function resetCamera(){yaw=2.45;pitch=.75;zoom=1;renderScene();}
+$('cameraReset').onclick=resetCamera;$('oblique').onclick=resetCamera;$('top').onclick=()=>{pitch=Math.PI/2-.001;yaw=0;renderScene();};$('side').onclick=()=>{pitch=.02;yaw=2.45;renderScene();};$('scene').ondblclick=resetCamera;
+$('scene').onpointerdown=e=>{drag={x:e.clientX,y:e.clientY};$('scene').setPointerCapture(e.pointerId);};$('scene').onpointermove=e=>{if(!drag)return;yaw+=(e.clientX-drag.x)*.008;pitch=Math.max(-1.5,Math.min(1.5,pitch+(e.clientY-drag.y)*.008));drag={x:e.clientX,y:e.clientY};renderScene();};$('scene').onpointerup=$('scene').onpointercancel=()=>{drag=null;};$('scene').addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.4,Math.min(3,zoom*Math.exp(-e.deltaY*.001)));renderScene();},{passive:false});window.addEventListener('resize',update);selectPanel('joints');setStep(0);
+
+</script></body></html>

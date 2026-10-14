@@ -1,0 +1,33 @@
+{
+  "snapshot_date": "2026-09-03",
+  "source_root": "/home/s101/kaihand_teleop_ws/src/kaihand_teleop_sim",
+  "source_files_sha256": {
+    "mjcf/tianji_m6_ccs_kaihands.xml": "ab62a171f7bd000fb550e2b999a455293443cde54382e953ad991c79792d56d0",
+    "mjcf/hand_asset.xml": "79337434a4fbe102bbbcd3ffe94a38c06ffcba1764ae1866d9468c3da964e7c1",
+    "mjcf/hand_l_body.xml": "d027a8d2c6af6b70ad2ca447a26a4516a82bcfc078c3166e6ca676242ea8b005",
+    "mjcf/hand_r_body.xml": "4e491606ed429edd09ac051813d699e563efe844a8cf961b3c1d1b977beed3c2",
+    "mjcf/hand_contact.xml": "07c089610a75b0a6ae6a1a532a4d19273e56ad4bc960d9df1f3e662a9e0482ef"
+  },
+  "source_mesh_inventory_sha256": "c75f0b765d0c712f252c12d6ea76c82ada77a51d0088caa1eed36c19f07486ec",
+  "right_hand_tactile_update": {
+    "source_directory_name": "KaiBot-Dexhand shell-URDF-R-260831(1530)-tac-p",
+    "source_urdf_sha256": "7e07ed7336dbb3561d10f6968b20e9aff85106c49207e41a8c07b5c2816631dc",
+    "audit_manifest": "audits/right_fingertip_masks.audit.json"
+  },
+  "left_hand_tactile_update": {
+    "method": "link-local reflection y -> -y of the segmented right shell, pad and mask",
+    "runtime_physical_mesh_replaced": true,
+    "runtime_geometry": "mirrored split shell plus fixed mirrored tactile pad",
+    "audit_manifest": "audits/right_to_left_mirror.audit.json"
+  },
+  "local_changes": [
+    "renamed the combined scene",
+    "added a 500 Hz worktable scene",
+    "added a 70 x 180 mm red cylinder and a fixed open-top blue box",
+    "added fixed overhead/front cameras and a torso-mounted head camera",
+    "added an isolated 16 cm-high poker table and one face-down 63 x 88 mm card for the right-hand draw task",
+    "updated the right-hand CAD snapshot and split each fingertip into shell plus fixed tactile pad",
+    "kept open tactile patches out of runtime collision and generated a 7 x 5, 1 mm-radius grid on each fingertip",
+    "formally mirrored and installed the left shell/pad/mask after geometry audit and bilateral user acceptance"
+  ]
+}

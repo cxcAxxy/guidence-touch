@@ -1,0 +1,51 @@
+{
+  "version": "augmentation_rules_v1",
+  "units": "signed millimetres in measured contact-local [away_normal, tangent1, tangent2]",
+  "perturb_probability": 0.65,
+  "component_zero_probability_before_constraints": 0.35,
+  "nonzero_component_levels_mm": [
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    2.0
+  ],
+  "release_goal_probability_if_both_goals_feasible": 0.25,
+  "keep_contact_positive_normal_levels_mm": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "release_positive_normal_levels_mm": [
+    1.25,
+    1.5,
+    2.0
+  ],
+  "max_displacement_norm_mm": 2.0,
+  "random_options_per_finger": 128,
+  "pool_bootstrap": "26 signed 0.25mm component combinations and pure-axis amplitude levels",
+  "contact_threshold_n": 0.001,
+  "synthetic_release_distance_mm": 1.0,
+  "synthetic_force_gain_cap": 3.0,
+  "max_ik_error_um": 50.0,
+  "max_joint_delta_rad": 0.15,
+  "max_pad_rotation_deg": 15.0,
+  "action_horizon": 30,
+  "variants_per_origin": 10,
+  "seed": 42,
+  "requirements": [
+    "Each supported finger draws its own flag, signed normal/tangent1/tangent2 components and contact goal.",
+    "Unselected or unsupported fingers have zero displacement and exactly unchanged state/tactile.",
+    "Selected fingers require at least one nonzero component; entirely unchanged groups are skipped.",
+    "Values may coincide between fingers; no forced equality or inequality.",
+    "Component draws are conditioned on displacement norm, contact goal and IK feasibility; not an unconstrained product distribution.",
+    "Normal contact goal is sampled first; displacement must produce that goal under the local force surrogate.",
+    "No new contact is fabricated on an originally unsupported/no-contact finger.",
+    "Arm state is fixed; finger IK changes only selected finger joints.",
+    "Thirty-step minimum-jerk recovery returns to the original current state, with no appended task continuation.",
+    "Vision remains the original frame; synthetic touch is not physics ground truth.",
+    "Retain train/val episode split and deterministic source identity; no training or full generation in a preview."
+  ]
+}

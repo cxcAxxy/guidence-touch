@@ -1,0 +1,54 @@
+<mujoco model="kaihand_poker_draw">
+  <include file="../../shared/mjcf/robot.xml"/>
+
+  <asset>
+    <!-- Keep the task material name stable.  The task-local stone texture is
+         a lighter counterpart to the shared main worktop; this changes only
+         appearance, never contact or friction parameters. -->
+    <texture name="poker_table_light_stone" type="2d"
+             file="light_grey_marble_v1.png"/>
+    <material name="poker_felt" texture="poker_table_light_stone" texrepeat="1 1"
+              texuniform="true" specular="0.05" shininess="0.12"
+              emission="0.02"/>
+    <texture name="card_back_red_diamond" type="2d"
+             file="card_back_red_diamond_v1.png"/>
+    <material name="card_back" texture="card_back_red_diamond"
+              texrepeat="1 1" texuniform="false"
+              specular="0.02" shininess="0.05"/>
+    <material name="card_face" rgba="0.96 0.94 0.88 1"/>
+  </asset>
+
+  <worldbody>
+    <!-- A 16 cm raised, 340 x 240 mm marble-topped table.  Its near edge
+         remains at x=.465 so the learned draw distance and success semantics
+         stay unchanged; the extra area extends away from the robot and along Y. -->
+    <body name="poker_table" pos="0.635 -0.18 0.76">
+      <geom name="poker_table_base" type="box" size="0.170 0.120 0.080"
+            contype="11264" conaffinity="11264" material="poker_felt"
+            friction="0.10 0.005 0.0005" priority="2"
+            solref="0.002 1" solimp="0.98 0.995 0.0005"/>
+      <geom name="poker_table_top" type="box" pos="0 0 0.0805"
+            size="0.170 0.120 0.0005" contype="11264" conaffinity="11264"
+            material="poker_felt" friction="0.10 0.005 0.0005" priority="2"
+            solref="0.002 1" solimp="0.98 0.995 0.0005"/>
+    </body>
+
+    <!-- Standard poker-card footprint: 63 x 88 mm, face-down at reset. -->
+    <body name="card" pos="0.58 -0.16 0.84175">
+      <joint name="card_freejoint" type="free" damping="0.002"/>
+      <geom name="card_core_geom" type="box" size="0.0315 0.0440 0.00055"
+            mass="0.004" contype="12289" conaffinity="12289"
+            friction="1.40 0.02 0.002" priority="1" margin="0.00035"
+            solref="0.002 1" solimp="0.98 0.995 0.0005 0.5 2"
+            material="card_face"/>
+      <geom name="card_back_visual" type="box" pos="0 0 0.00062"
+            size="0.0305 0.0430 0.00008" contype="0" conaffinity="0"
+            material="card_back"/>
+      <geom name="card_face_visual" type="box" pos="0 0 -0.00062"
+            size="0.0305 0.0430 0.00008" contype="0" conaffinity="0"
+            material="card_face"/>
+    </body>
+  </worldbody>
+
+  <include file="../../shared/mjcf/control.xml"/>
+</mujoco>

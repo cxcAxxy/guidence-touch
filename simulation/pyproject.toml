@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kaihand-tactile-env"
+version = "0.1.0"
+description = "Pure-MuJoCo tactile manipulation and data collection environment for dual-arm KaiHand."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "h5py>=3.12,<4",
+  "imageio-ffmpeg>=0.6,<1",
+  "matplotlib>=3.10,<4",
+  "mujoco>=3.3,<4",
+  "msgpack>=1.1,<2",
+  "numpy>=2,<3",
+  "pillow>=11,<13",
+  "websockets>=16,<17",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["kaihand_tactile_env*"]
+
+[tool.setuptools.package-data]
+kaihand_tactile_env = [
+  "shared/mjcf/*.xml",
+  "tasks/*/*.xml",
+  "tasks/*/*.png",
+  "assets/workcell/**/*.xml",
+  "assets/workcell/**/*.STL",
+  "assets/workcell/**/*.stl",
+  "assets/workcell/**/*.md",
+  "assets/workcell/**/*.json",
+  "assets/workcell/**/*.png",
+  "tactile/taxels/*.json",
+]
+
+[tool.ruff]
+indent-width = 2
+src = ["src/kaihand_tactile_env"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B"]
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

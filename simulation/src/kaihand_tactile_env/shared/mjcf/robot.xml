@@ -1,0 +1,376 @@
+<mujoco model="kaihand_shared_robot">
+  <!--
+    Shared dual-arm KaiHand workcell.
+
+    Task objects deliberately do not live in this file. All task scenes
+    include this exact robot definition so joint, actuator, camera, and
+    tactile geometry names stay identical across independently compiled
+    models. Robot physics mirror the legacy workcell model; the head camera
+    uses the shared USB-derived observation calibration.
+  -->
+
+  <include file="../../assets/workcell/mjcf/hand_asset.xml"/>
+
+  <compiler angle="radian" meshdir="../../assets/workcell/meshes/"
+            autolimits="true" balanceinertia="true"/>
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast"
+          iterations="80" cone="elliptic"/>
+  <visual>
+    <global offwidth="1280" offheight="720"/>
+    <quality shadowsize="4096"/>
+    <!-- Default znear clips away wrist-adjacent surfaces at ~42 mm in USB.
+         Keep near surfaces down to ~2 mm without moving any sensor camera. -->
+    <map znear="0.0005"/>
+    <headlight ambient="0.25 0.25 0.25" diffuse="0.4 0.4 0.4"
+               specular="0.3 0.3 0.3"/>
+  </visual>
+
+  <default>
+    <!-- Shared observation calibration, adopted from USB insertion. Scope it
+         to the robot head only: free/global and task close-up cameras retain
+         their independent extrinsics. New tasks inherit this exact camera. -->
+    <default class="robot_head_camera">
+      <camera pos="0.11 0 1.28" fovy="70"
+              xyaxes="0 -1 0 0.76229408 0 0.64723082"/>
+    </default>
+    <!-- Right wrist camera, expressed in the rigid hand-mount frame:
+         +Y is palm-facing (down for palm-down draw), -Z points to fingers.
+         An optical sensor only: no extra mass, contacts, or tracking target. -->
+    <default class="robot_right_wrist_camera">
+      <camera pos="0 0.035 0.025" fovy="85"
+              xyaxes="-1 0 0 0 -0.98 -0.20"/>
+    </default>
+    <!-- The hand meshes mirror local Y. Mirror position and optical/up axes;
+         reverse the image X axis to keep a proper right-handed camera frame. -->
+    <default class="robot_left_wrist_camera">
+      <camera pos="0 -0.035 0.025" fovy="85"
+              xyaxes="1 0 0 0 0.98 -0.20"/>
+    </default>
+    <default class="arm_joint">
+      <joint type="hinge" axis="0 0 1" damping="3.0" armature="0.05"
+             frictionloss="0.1" limited="true"/>
+    </default>
+    <default class="arm_visual">
+      <geom contype="0" conaffinity="0" group="1" material="arm_visual"/>
+    </default>
+    <default class="arm_collision">
+      <!-- Bit 2 collides with scene masks; arm proxies do not collide together. -->
+      <geom contype="2" conaffinity="0" group="4" rgba="1 0 0 0.18"
+            condim="4" friction="0.9 0.02 0.002"/>
+    </default>
+  </default>
+
+  <asset>
+    <!-- White/silver lab v2: appearance only. Retain historical material names,
+         all geometry, sensor calibration, and physical contact parameters. -->
+    <texture name="lab_sky" type="skybox" builtin="gradient"
+             rgb1="1 1 1" rgb2="1 1 1"
+             width="256" height="1536"/>
+    <texture name="grid" type="2d" builtin="flat" rgb1="0.96 0.96 0.96"
+             rgb2="0.96 0.96 0.96" width="512" height="512"/>
+    <texture name="worktop_finish" type="2d"
+             file="../../assets/workcell/textures/dark_grey_marble_v1.png"/>
+    <material name="grid" texture="grid" texrepeat="1 1" texuniform="true"
+              specular="0.08" shininess="0.12"/>
+    <material name="arm_visual" rgba="0.94 0.94 0.94 1"
+              specular="0.22" shininess="0.35"/>
+    <material name="arm_red" rgba="0.90 0.90 0.90 1"
+              specular="0.22" shininess="0.35"/>
+    <material name="arm_green" rgba="0.96 0.96 0.96 1"
+              specular="0.22" shininess="0.35"/>
+    <material name="arm_blue" rgba="0.94 0.94 0.94 1"
+              specular="0.22" shininess="0.35"/>
+    <material name="torso_visual" rgba="0.94 0.94 0.94 1"
+              specular="0.22" shininess="0.35"/>
+    <material name="table" texture="worktop_finish" texrepeat="1 1"
+              texuniform="true" specular="0.05" shininess="0.12"/>
+    <material name="table_frame" rgba="0.50 0.52 0.54 1"
+              specular="0.05" shininess="0.12"/>
+
+    <mesh name="tianji_base" file="tianji_m6/base/ZJ_Robot_link.STL"/>
+    <mesh name="tianji_Base_L" file="tianji_m6/m6/Base_L.STL"/>
+    <mesh name="tianji_Link1_L" file="tianji_m6/m6/Link1_L.STL"/>
+    <mesh name="tianji_Link2_L" file="tianji_m6/m6/Link2_L.STL"/>
+    <mesh name="tianji_Link3_L" file="tianji_m6/m6/Link3_L.STL"/>
+    <mesh name="tianji_Link4_L" file="tianji_m6/m6/Link4_L.STL"/>
+    <mesh name="tianji_Link5_L" file="tianji_m6/m6/Link5_L.STL"/>
+    <mesh name="tianji_Link6_L" file="tianji_m6/m6/Link6_L.STL"/>
+    <mesh name="tianji_Link7_L" file="tianji_m6/m6/Link7_L.STL"/>
+    <mesh name="tianji_Base_R" file="tianji_m6/m6/Base_R.STL"/>
+    <mesh name="tianji_Link1_R" file="tianji_m6/m6/Link1_R.STL"/>
+    <mesh name="tianji_Link2_R" file="tianji_m6/m6/Link2_R.STL"/>
+    <mesh name="tianji_Link3_R" file="tianji_m6/m6/Link3_R.STL"/>
+    <mesh name="tianji_Link4_R" file="tianji_m6/m6/Link4_R.STL"/>
+    <mesh name="tianji_Link5_R" file="tianji_m6/m6/Link5_R.STL"/>
+    <mesh name="tianji_Link6_R" file="tianji_m6/m6/Link6_R.STL"/>
+    <mesh name="tianji_Link7_R" file="tianji_m6/m6/Link7_R.STL"/>
+  </asset>
+
+  <worldbody>
+    <light name="top" pos="0 0 3" dir="0 0 -1" directional="true"
+           diffuse="0.65 0.65 0.65" specular="0.35 0.35 0.35"/>
+    <light name="front" pos="2 -1 2" dir="-1 0 -0.5" castshadow="false"
+           diffuse="0.35 0.35 0.35" specular="0.20 0.20 0.20"/>
+    <!-- Fixed calibrated cameras. MuJoCo cameras look along local -Z. -->
+    <camera name="overhead" pos="0.56 0 1.75"
+            xyaxes="1 0 0 0 1 0" fovy="52"/>
+    <camera name="front" pos="1.45 0 1.02"
+            xyaxes="0 1 0 0 0 1" fovy="50"/>
+    <geom name="ground" type="plane" size="3 3 0.05" pos="0 0 0"
+          contype="3075" conaffinity="3075" material="grid"
+          friction="1.0 0.02 0.002"/>
+    <body name="table" pos="0.58 0 0.64">
+      <!-- Rear edge x=.15: 8 cm ahead of torso surface x=.07 at table height.
+           Retain front edge x=2.08, width, height, and contact parameters. -->
+      <geom name="tabletop" type="box" pos="0.535 0 0" size="0.965 1.50 0.04"
+            contype="3075" conaffinity="3075" material="table"
+            friction="1.1 0.02 0.002"/>
+      <geom name="table_leg_front" type="box" pos="0.42 0 -0.32"
+            size="0.06 0.50 0.28" contype="1" conaffinity="1"
+            material="table_frame"/>
+    </body>
+
+    <body name="torso">
+      <inertial pos="0.0081994 -0.0000051239 0.47835"
+                quat="0.999994 0.0000257224 0.0031361 0.00173711"
+                mass="18.846" diaginertia="0.463463 0.46325 0.377657"/>
+      <geom name="torso_visual" type="mesh" mesh="tianji_base"
+            contype="0" conaffinity="0" group="1" material="torso_visual"/>
+      <geom name="torso_collision" type="capsule" fromto="0 0 0 0 0 1.3"
+            size="0.06" contype="1" conaffinity="1" group="4"
+            rgba="1 0 0 0.18"/>
+      <camera name="head" class="robot_head_camera"/>
+
+      <body name="left_arm_base" pos="0 0.026 1.121"
+            quat="0.707388 -0.706825 0 0">
+        <inertial pos="0.00032267 0.00004798 0.0406635"
+                  quat="0.582787 0.36644 -0.620273 0.375956"
+                  mass="1.1962" diaginertia="0.00127375 0.00107367 0.00106904"/>
+        <geom type="mesh" mesh="tianji_Base_L" class="arm_visual"
+              material="arm_red"/>
+        <geom type="cylinder" size="0.065 0.055" class="arm_collision"/>
+
+        <body name="left_arm_link1" pos="0 0 0.1745">
+          <inertial pos="0.00002347 0.0055715 -0.03076"
+                    quat="0.711599 0.0343691 -0.0341702 0.700912"
+                    mass="1.9705" diaginertia="0.00529754 0.00492285 0.00184874"/>
+          <joint name="left_arm_joint1" class="arm_joint"
+                 range="-3.1067 3.1067"/>
+          <geom type="mesh" mesh="tianji_Link1_L" class="arm_visual"
+                material="arm_green"/>
+          <geom type="sphere" size="0.062" class="arm_collision"/>
+
+          <body name="left_arm_link2" quat="0.707106781187 0.707106781187 0 0">
+            <inertial pos="0.00013483 0.0617046 0.00950639"
+                      quat="0.643375 0.765551 -0.0000357328 0.000294349"
+                      mass="2.24398" diaginertia="0.0119493 0.0112156 0.00338374"/>
+            <joint name="left_arm_joint2" class="arm_joint"
+                   range="-2.09439510239 2.09439510239"/>
+            <geom type="mesh" mesh="tianji_Link2_L" class="arm_visual"
+                  material="arm_blue"/>
+            <geom type="capsule" fromto="0 0 0 0 0.287 0" size="0.046"
+                  class="arm_collision"/>
+
+            <body name="left_arm_link3" pos="0 0.287 0"
+                  quat="0.707106781187 -0.707106781187 0 0">
+              <inertial pos="0.00968562 0.00246599 -0.046273"
+                        quat="0.782446 -0.0355285 -0.0735516 0.617337"
+                        mass="1.9242" diaginertia="0.00765215 0.00730789 0.0016338"/>
+              <joint name="left_arm_joint3" class="arm_joint"
+                     range="-3.1067 3.1067"/>
+              <geom type="mesh" mesh="tianji_Link3_L" class="arm_visual"
+                    material="arm_red"/>
+              <geom type="sphere" size="0.053" class="arm_collision"/>
+
+              <body name="left_arm_link4" pos="0.018 0 0"
+                    quat="0 0 -0.707106781187 0.707106781187">
+                <inertial pos="0.00850411 -0.0471822 0.00941509"
+                          quat="0.741754 0.628694 0.0774999 -0.220317"
+                          mass="1.6085" diaginertia="0.00603244 0.00535875 0.00198228"/>
+                <joint name="left_arm_joint4" class="arm_joint"
+                       range="-2.5307 1.0472"/>
+                <geom type="mesh" mesh="tianji_Link4_L" class="arm_visual"
+                      material="arm_green"/>
+                <geom type="capsule" fromto="0 0 0 0.018 -0.314 0" size="0.041"
+                      class="arm_collision"/>
+
+                <body name="left_arm_link5" pos="0.018 -0.314 0"
+                      quat="0 0 -0.707106781187 0.707106781187">
+                  <inertial pos="0.00051127 0.00101064 -0.112717"
+                            quat="0.999438 -0.00995046 -0.00675781 0.0312997"
+                            mass="2.0883" diaginertia="0.00626924 0.00564262 0.00243436"/>
+                  <joint name="left_arm_joint5" class="arm_joint"
+                         range="-3.1067 3.1067"/>
+                  <geom type="mesh" mesh="tianji_Link5_L" class="arm_visual"
+                        material="arm_blue"/>
+                  <geom type="sphere" size="0.045" class="arm_collision"/>
+
+                  <body name="left_arm_link6" quat="0.5 0.5 -0.5 0.5">
+                    <inertial pos="0.00032659 0.00531336 -0.00030182"
+                              quat="0.718188 -0.0225408 0.00407878 0.695472"
+                              mass="0.72496" diaginertia="0.000517351 0.000460362 0.000425057"/>
+                    <joint name="left_arm_joint6" class="arm_joint"
+                           range="-1.04719755120 1.04719755120"/>
+                    <geom type="mesh" mesh="tianji_Link6_L" class="arm_visual"
+                          material="arm_red"/>
+                    <geom type="sphere" size="0.038" class="arm_collision"/>
+
+                    <body name="left_arm_link7" quat="0.5 0.5 -0.5 0.5">
+                      <inertial pos="-0.00009108 -0.0315325 0.00889371"
+                                quat="0.84481 0.535026 0.00229584 -0.00609725"
+                                mass="0.68606" diaginertia="0.00173691 0.00153911 0.000745263"/>
+                      <joint name="left_arm_joint7" class="arm_joint"
+                             range="-1.57079632679 1.57079632679"/>
+                      <geom type="mesh" mesh="tianji_Link7_L_shell_visual" class="arm_visual"
+                            material="arm_green"/>
+                      <geom type="capsule" fromto="0 0 0 0 -0.088 0" size="0.031"
+                            class="arm_collision"/>
+
+                      <body name="left_arm_flange" pos="0 -0.088 0"
+                            quat="0.5 0.5 -0.5 0.5">
+                        <site name="left_ee_site" size="0.012" rgba="0.15 0.85 0.35 1"/>
+                        <body name="left_hand_mount" euler="0 3.141592653589793 0">
+                          <!-- A force/torque site must belong to the measured
+                               child subtree, rather than the arm-side flange. -->
+                          <site name="left_wrist_ft_site" size="0.002"
+                                rgba="0 0 0 0"/>
+                          <camera name="left_wrist" class="robot_left_wrist_camera"/>
+                          <include file="../../assets/workcell/mjcf/hand_l_body.xml"/>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <body name="right_arm_base" pos="0 -0.026 1.121"
+            quat="0.707388 0.706825 0 0">
+        <inertial pos="0.00032267 0.00004798 0.0406635"
+                  quat="0.582787 0.36644 -0.620273 0.375956"
+                  mass="1.1962" diaginertia="0.00127375 0.00107367 0.00106904"/>
+        <geom type="mesh" mesh="tianji_Base_R" class="arm_visual"
+              material="arm_red"/>
+        <geom type="cylinder" size="0.065 0.055" class="arm_collision"/>
+
+        <body name="right_arm_link1" pos="0 0 0.1745">
+          <inertial pos="0.00002347 0.0055715 -0.03076"
+                    quat="0.711599 0.0343691 -0.0341702 0.700912"
+                    mass="1.9705" diaginertia="0.00529754 0.00492285 0.00184874"/>
+          <joint name="right_arm_joint1" class="arm_joint"
+                 range="-3.1067 3.1067"/>
+          <geom type="mesh" mesh="tianji_Link1_R" class="arm_visual"
+                material="arm_green"/>
+          <geom type="sphere" size="0.062" class="arm_collision"/>
+
+          <body name="right_arm_link2" quat="0.707106781187 0.707106781187 0 0">
+            <inertial pos="0.00013483 0.0617046 0.00950639"
+                      quat="0.643375 0.765551 -0.0000357328 0.000294349"
+                      mass="2.24398" diaginertia="0.0119493 0.0112156 0.00338374"/>
+            <joint name="right_arm_joint2" class="arm_joint"
+                   range="-2.09439510239 2.09439510239"/>
+            <geom type="mesh" mesh="tianji_Link2_R" class="arm_visual"
+                  material="arm_blue"/>
+            <geom type="capsule" fromto="0 0 0 0 0.287 0" size="0.046"
+                  class="arm_collision"/>
+
+            <body name="right_arm_link3" pos="0 0.287 0"
+                  quat="0.707106781187 -0.707106781187 0 0">
+              <inertial pos="0.00968562 0.00246599 -0.046273"
+                        quat="0.782446 -0.0355285 -0.0735516 0.617337"
+                        mass="1.9242" diaginertia="0.00765215 0.00730789 0.0016338"/>
+              <joint name="right_arm_joint3" class="arm_joint"
+                     range="-3.1067 3.1067"/>
+              <geom type="mesh" mesh="tianji_Link3_R" class="arm_visual"
+                    material="arm_red"/>
+              <geom type="sphere" size="0.053" class="arm_collision"/>
+
+              <body name="right_arm_link4" pos="0.018 0 0"
+                    quat="0 0 -0.707106781187 0.707106781187">
+                <inertial pos="0.00850411 -0.0471822 0.00941509"
+                          quat="0.741754 0.628694 0.0774999 -0.220317"
+                          mass="1.6085" diaginertia="0.00603244 0.00535875 0.00198228"/>
+                <joint name="right_arm_joint4" class="arm_joint"
+                       range="-2.5307 1.0472"/>
+                <geom type="mesh" mesh="tianji_Link4_R" class="arm_visual"
+                      material="arm_green"/>
+                <geom type="capsule" fromto="0 0 0 0.018 -0.314 0" size="0.041"
+                      class="arm_collision"/>
+
+                <body name="right_arm_link5" pos="0.018 -0.314 0"
+                      quat="0 0 -0.707106781187 0.707106781187">
+                  <inertial pos="-0.00051127 -0.00101064 -0.112717"
+                            quat="0.999438 0.00995046 0.00675781 0.0312997"
+                            mass="2.0883" diaginertia="0.00626924 0.00564262 0.00243436"/>
+                  <joint name="right_arm_joint5" class="arm_joint"
+                         range="-3.1067 3.1067"/>
+                  <geom type="mesh" mesh="tianji_Link5_R" class="arm_visual"
+                        material="arm_blue"/>
+                  <geom type="sphere" size="0.045" class="arm_collision"/>
+
+                  <body name="right_arm_link6" quat="0.5 0.5 -0.5 0.5">
+                    <inertial pos="0.00032659 -0.00531336 0.00030182"
+                              quat="0.695472 -0.00407878 0.0225408 0.718188"
+                              mass="0.72496" diaginertia="0.000517351 0.000460362 0.000425057"/>
+                    <joint name="right_arm_joint6" class="arm_joint"
+                           range="-1.04719755120 1.04719755120"/>
+                    <geom type="mesh" mesh="tianji_Link6_R" class="arm_visual"
+                          material="arm_red"/>
+                    <geom type="sphere" size="0.038" class="arm_collision"/>
+
+                    <body name="right_arm_link7" quat="0.5 0.5 -0.5 0.5">
+                      <inertial pos="-0.00009108 -0.0315325 0.00889371"
+                                quat="0.84481 0.535026 0.00229584 -0.00609725"
+                                mass="0.68606" diaginertia="0.00173691 0.00153911 0.000745263"/>
+                      <joint name="right_arm_joint7" class="arm_joint"
+                             range="-1.57079632679 1.57079632679"/>
+                      <geom type="mesh" mesh="tianji_Link7_R_shell_visual" class="arm_visual"
+                            material="arm_green"/>
+                      <geom type="capsule" fromto="0 0 0 0 -0.088 0" size="0.031"
+                            class="arm_collision"/>
+
+                      <body name="right_arm_flange" pos="0 -0.088 0"
+                            quat="0.5 0.5 -0.5 0.5">
+                        <site name="right_ee_site" size="0.012" rgba="1 0.55 0.12 1"/>
+                        <body name="right_hand_world_z_home_correction"
+                              quat="0 -0.02579857 0.99964256 -0.00701268">
+                          <body name="right_hand_axis_flip"
+                                euler="3.141592653589793 0 0">
+                            <body name="right_hand_mount"
+                                  euler="0 3.141592653589793 3.141592653589793">
+                              <site name="right_wrist_ft_site" size="0.002"
+                                    rgba="0 0 0 0"/>
+                              <camera name="right_wrist" class="robot_right_wrist_camera"/>
+                              <include file="../../assets/workcell/mjcf/hand_r_body.xml"/>
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <body name="left_target" mocap="true" pos="0.55 0.45 1.15">
+    </body>
+    <body name="right_target" mocap="true" pos="0.55 -0.45 1.15">
+    </body>
+  </worldbody>
+
+  <!-- Shared bimanual wrist F/T sensors. Their raw site-frame readings are
+       transformed to world coordinates by the shared HDF5 recorder. -->
+  <sensor>
+    <force name="left_wrist_force" site="left_wrist_ft_site"/>
+    <torque name="left_wrist_torque" site="left_wrist_ft_site"/>
+    <force name="right_wrist_force" site="right_wrist_ft_site"/>
+    <torque name="right_wrist_torque" site="right_wrist_ft_site"/>
+  </sensor>
+</mujoco>

@@ -1,0 +1,44 @@
+<mujoco model="kaihand_pick_place">
+  <include file="../../shared/mjcf/robot.xml"/>
+
+  <asset>
+    <material name="cylinder" rgba="0.70 0.72 0.74 1"/>
+    <material name="box" rgba="0.94 0.94 0.94 1"/>
+  </asset>
+
+  <worldbody>
+    <!-- Cup-sized upright cylinder for a five-finger power grasp. -->
+    <body name="cylinder" pos="0.56 -0.20 0.77">
+      <freejoint name="cylinder_freejoint"/>
+      <geom name="cylinder_geom" type="cylinder" size="0.035 0.09"
+            mass="0.08" contype="3075" conaffinity="3075"
+            friction="1.5 0.02 0.002" margin="0.001" material="cylinder"/>
+    </body>
+
+    <!-- Fixed open-top receptacle.  Inner footprint is 14 x 14 cm. -->
+    <!-- The body's z origin coincides with the tabletop, so the bottom plate
+         rests on z=0.68 instead of floating 20 mm above it. -->
+    <body name="box" pos="0.56 -0.02 0.68">
+      <geom name="box_bottom" type="box" pos="0 0 0.006"
+            size="0.08 0.08 0.006" contype="3075" conaffinity="3075"
+            friction="1.0 0.02 0.002" material="box"/>
+      <geom name="box_wall_x_pos" type="box" pos="0.076 0 0.056"
+            size="0.004 0.08 0.05" contype="3075" conaffinity="3075" material="box"/>
+      <geom name="box_wall_x_neg" type="box" pos="-0.076 0 0.056"
+            size="0.004 0.08 0.05" contype="3075" conaffinity="3075" material="box"/>
+      <geom name="box_wall_y_pos" type="box" pos="0 0.076 0.056"
+            size="0.072 0.004 0.05" contype="3075" conaffinity="3075" material="box"/>
+      <geom name="box_wall_y_neg" type="box" pos="0 -0.076 0.056"
+            size="0.072 0.004 0.05" contype="3075" conaffinity="3075" material="box"/>
+    </body>
+  </worldbody>
+
+  <equality>
+    <!-- Activated only after physical finger closure and released above box. -->
+    <weld name="right_grasp_stabilizer" body1="hand_r_base_link"
+          body2="cylinder" active="false" solref="0.01 1"
+          solimp="0.93 0.98 0.001"/>
+  </equality>
+
+  <include file="../../shared/mjcf/control.xml"/>
+</mujoco>

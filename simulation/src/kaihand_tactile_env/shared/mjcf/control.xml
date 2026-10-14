@@ -1,0 +1,44 @@
+<mujoco model="kaihand_shared_control">
+  <!-- Arm controls follow the hand actuators declared by hand_asset.xml. -->
+  <actuator>
+    <position name="left_arm_joint1" joint="left_arm_joint1" kp="1800" kv="90"
+              ctrlrange="-3.1067 3.1067" forcerange="-108 108"/>
+    <position name="left_arm_joint2" joint="left_arm_joint2" kp="1800" kv="90"
+              ctrlrange="-2.09439510239 2.09439510239" forcerange="-108 108"/>
+    <position name="left_arm_joint3" joint="left_arm_joint3" kp="1520" kv="76"
+              ctrlrange="-3.1067 3.1067" forcerange="-66 66"/>
+    <position name="left_arm_joint4" joint="left_arm_joint4" kp="1280" kv="64"
+              ctrlrange="-2.5307 1.0472" forcerange="-66 66"/>
+    <position name="left_arm_joint5" joint="left_arm_joint5" kp="880" kv="48"
+              ctrlrange="-3.1067 3.1067" forcerange="-18 18"/>
+    <position name="left_arm_joint6" joint="left_arm_joint6" kp="560" kv="36"
+              ctrlrange="-1.04719755120 1.04719755120" forcerange="-18 18"/>
+    <position name="left_arm_joint7" joint="left_arm_joint7" kp="400" kv="28"
+              ctrlrange="-1.57079632679 1.57079632679" forcerange="-18 18"/>
+
+    <position name="right_arm_joint1" joint="right_arm_joint1" kp="1800" kv="90"
+              ctrlrange="-3.1067 3.1067" forcerange="-108 108"/>
+    <position name="right_arm_joint2" joint="right_arm_joint2" kp="1800" kv="90"
+              ctrlrange="-2.09439510239 2.09439510239" forcerange="-108 108"/>
+    <position name="right_arm_joint3" joint="right_arm_joint3" kp="1520" kv="76"
+              ctrlrange="-3.1067 3.1067" forcerange="-66 66"/>
+    <position name="right_arm_joint4" joint="right_arm_joint4" kp="1280" kv="64"
+              ctrlrange="-2.5307 1.0472" forcerange="-66 66"/>
+    <position name="right_arm_joint5" joint="right_arm_joint5" kp="880" kv="48"
+              ctrlrange="-3.1067 3.1067" forcerange="-18 18"/>
+    <position name="right_arm_joint6" joint="right_arm_joint6" kp="560" kv="36"
+              ctrlrange="-1.04719755120 1.04719755120" forcerange="-18 18"/>
+    <position name="right_arm_joint7" joint="right_arm_joint7" kp="400" kv="28"
+              ctrlrange="-1.57079632679 1.57079632679" forcerange="-18 18"/>
+  </actuator>
+
+  <!-- Passive distal thumb joints follow the preceding thumb joint. -->
+  <equality>
+    <joint name="left_thumb_coupling" joint1="hand_l_thumb_joint6"
+           joint2="hand_l_thumb_joint5" polycoef="0 1 0 0 0"/>
+    <joint name="right_thumb_coupling" joint1="hand_r_thumb_joint6"
+           joint2="hand_r_thumb_joint5" polycoef="0 1 0 0 0"/>
+  </equality>
+
+  <include file="../../assets/workcell/mjcf/hand_contact.xml"/>
+</mujoco>

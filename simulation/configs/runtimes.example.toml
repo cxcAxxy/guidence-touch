@@ -1,0 +1,33 @@
+# Copy to a local TOML file and select it with --runtime-config FILE --runtime NAME.
+# Paths are relative to this file. Environment values are literal strings.
+# Each model remains in its own Python/CUDA environment.
+
+[runtimes.pi05]
+python = "../../openpi/.venv-pi05/bin/python"
+project_root = "../../openpi"
+
+[runtimes.pi05.env]
+CUDA_VISIBLE_DEVICES = "0"
+OPENBLAS_NUM_THREADS = "1"
+OMP_NUM_THREADS = "1"
+MKL_NUM_THREADS = "1"
+
+[runtimes.lerobot-v3]
+python = "/path/to/lerobot-env/bin/python"
+
+[runtimes.lerobot-v3.env]
+HF_HOME = "/path/to/writable/huggingface_cache"
+
+[runtimes.egosteer]
+python = "/path/to/egosteer-env/bin/python"
+project_root = "/path/to/EgoSteer"
+
+[runtimes.egosteer.env]
+CUDA_VISIBLE_DEVICES = "0"
+
+[runtimes.egotouch]
+python = "/path/to/egotouch-env/bin/python"
+project_root = "/path/to/EgoTouch"
+
+[runtimes.egotouch.env]
+CUDA_VISIBLE_DEVICES = "0"

@@ -1,0 +1,8 @@
+{
+  "asset": "dark_grey_marble_v1.png",
+  "sha256": "ff9969d69ae82c47699c14f1316131dc64e27b20749b0184f9b604735c3aaa3b",
+  "generation_mode": "built-in image_gen",
+  "prompt": "Create a production-ready seamless tileable square albedo texture image for a robotics simulation tabletop. Match the user's reference aesthetic: dark neutral charcoal grey marble, smoky grey stone mottling, restrained thin irregular light grey mineral veins, very fine natural stone grain, low contrast realistic matte honed stone. Flat orthographic top-down texture fills the entire image edge to edge. Uniform diffuse illumination, no baked shadows, no highlights, no perspective, no table edges, no objects, no borders, no text. The overall color is dark medium grey, approximately sRGB 75-90/255, not black. Veins should be sparse and subtle, not bold white branching streaks. Seamless repeating surface texture, 1024x1024 or larger. Save the generated image for use as a local PNG texture asset in the project.",
+  "reference": "User-provided grey marble image, interpreted as a style reference; this is a newly generated texture.",
+  "date": "2026-09-18"
+}

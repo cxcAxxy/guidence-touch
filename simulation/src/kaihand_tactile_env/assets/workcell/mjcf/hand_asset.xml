@@ -1,0 +1,159 @@
+<mujoco model="kaihand_asset">
+  <compiler angle="radian" meshdir="../meshes/"/>
+
+  <asset>
+        <mesh name="tianji_Link7_L_shell_visual" file="../meshes/tianji_m6/m6/Link7_L_shell_visual.STL"/>
+        <mesh name="tianji_Link7_R_shell_visual" file="../meshes/tianji_m6/m6/Link7_R_shell_visual.STL"/>
+        <!-- Visual finishes only; fingertip collision pads and probes are unchanged. -->
+        <material name="hand_shell_silver" rgba="0.63 0.66 0.69 1" specular="0.55" shininess="0.60"/>
+        <material name="hand_joint_silver" rgba="0.66 0.69 0.72 1" specular="0.50" shininess="0.55"/>
+        <material name="hand_pad_silver" rgba="0.59 0.62 0.65 1" specular="0.10" shininess="0.15"/>
+        <mesh name="hand_l_base_link" file="../meshes/hand_l_base_link.STL" />
+        <mesh name="hand_l_thumb_link1" file="../meshes/hand_l_thumb_link1.STL" />
+        <mesh name="hand_l_thumb_link2" file="../meshes/hand_l_thumb_link2.STL" />
+        <mesh name="hand_l_thumb_link3" file="../meshes/hand_l_thumb_link3.STL" />
+        <mesh name="hand_l_thumb_link4" file="../meshes/hand_l_thumb_link4.STL" />
+        <mesh name="hand_l_thumb_link5" file="../meshes/hand_l_thumb_link5.STL" />
+        <mesh name="hand_l_thumb_link6" file="../meshes/hand_l_thumb_link6.STL" />
+        <mesh name="hand_l_thumb_link6_tactile_pad" file="../meshes/hand_l_thumb_link6_tac.STL" />
+        <mesh name="hand_l_index_link1" file="../meshes/hand_l_index_link1.STL" />
+        <mesh name="hand_l_index_link2" file="../meshes/hand_l_index_link2.STL" />
+        <mesh name="hand_l_index_link3" file="../meshes/hand_l_index_link3.STL" />
+        <mesh name="hand_l_index_link4" file="../meshes/hand_l_index_link4.STL" />
+        <mesh name="hand_l_index_link4_tactile_pad" file="../meshes/hand_l_index_link4_tac.STL" />
+        <mesh name="hand_l_middle_link1" file="../meshes/hand_l_middle_link1.STL" />
+        <mesh name="hand_l_middle_link2" file="../meshes/hand_l_middle_link2.STL" />
+        <mesh name="hand_l_middle_link3" file="../meshes/hand_l_middle_link3.STL" />
+        <mesh name="hand_l_middle_link4" file="../meshes/hand_l_middle_link4.STL" />
+        <mesh name="hand_l_middle_link4_tactile_pad" file="../meshes/hand_l_middle_link4_tac.STL" />
+        <mesh name="hand_l_ring_link1" file="../meshes/hand_l_ring_link1.STL" />
+        <mesh name="hand_l_ring_link2" file="../meshes/hand_l_ring_link2.STL" />
+        <mesh name="hand_l_ring_link3" file="../meshes/hand_l_ring_link3.STL" />
+        <mesh name="hand_l_ring_link4" file="../meshes/hand_l_ring_link4.STL" />
+        <mesh name="hand_l_ring_link4_tactile_pad" file="../meshes/hand_l_ring_link4_tac.STL" />
+        <mesh name="hand_l_pinky_link1" file="../meshes/hand_l_pinky_link1.STL" />
+        <mesh name="hand_l_pinky_link2" file="../meshes/hand_l_pinky_link2.STL" />
+        <mesh name="hand_l_pinky_link3" file="../meshes/hand_l_pinky_link3.STL" />
+        <mesh name="hand_l_pinky_link4" file="../meshes/hand_l_pinky_link4.STL" />
+        <mesh name="hand_l_pinky_link4_tactile_pad" file="../meshes/hand_l_pinky_link4_tac.STL" />
+
+        <mesh name="hand_r_base_link" file="../meshes/hand_r_base_link.STL" />
+        <mesh name="hand_r_thumb_link1" file="../meshes/hand_r_thumb_link1.STL" />
+        <mesh name="hand_r_thumb_link2" file="../meshes/hand_r_thumb_link2.STL" />
+        <mesh name="hand_r_thumb_link3" file="../meshes/hand_r_thumb_link3.STL" />
+        <mesh name="hand_r_thumb_link4" file="../meshes/hand_r_thumb_link4.STL" />
+        <mesh name="hand_r_thumb_link5" file="../meshes/hand_r_thumb_link5.STL" />
+        <mesh name="hand_r_thumb_link6" file="../meshes/hand_r_thumb_link6.STL" />
+        <mesh name="hand_r_thumb_link6_tactile_pad" file="../meshes/hand_r_thumb_link6_tac.STL" />
+        <mesh name="hand_r_index_link1" file="../meshes/hand_r_index_link1.STL" />
+        <mesh name="hand_r_index_link2" file="../meshes/hand_r_index_link2.STL" />
+        <mesh name="hand_r_index_link3" file="../meshes/hand_r_index_link3.STL" />
+        <mesh name="hand_r_index_link4" file="../meshes/hand_r_index_link4.STL" />
+        <mesh name="hand_r_index_link4_tactile_pad" file="../meshes/hand_r_index_link4_tac.STL" />
+        <mesh name="hand_r_middle_link1" file="../meshes/hand_r_middle_link1.STL" />
+        <mesh name="hand_r_middle_link2" file="../meshes/hand_r_middle_link2.STL" />
+        <mesh name="hand_r_middle_link3" file="../meshes/hand_r_middle_link3.STL" />
+        <mesh name="hand_r_middle_link4" file="../meshes/hand_r_middle_link4.STL" />
+        <mesh name="hand_r_middle_link4_tactile_pad" file="../meshes/hand_r_middle_link4_tac.STL" />
+        <mesh name="hand_r_ring_link1" file="../meshes/hand_r_ring_link1.STL" />
+        <mesh name="hand_r_ring_link2" file="../meshes/hand_r_ring_link2.STL" />
+        <mesh name="hand_r_ring_link3" file="../meshes/hand_r_ring_link3.STL" />
+        <mesh name="hand_r_ring_link4" file="../meshes/hand_r_ring_link4.STL" />
+        <mesh name="hand_r_ring_link4_tactile_pad" file="../meshes/hand_r_ring_link4_tac.STL" />
+        <mesh name="hand_r_pinky_link1" file="../meshes/hand_r_pinky_link1.STL" />
+        <mesh name="hand_r_pinky_link2" file="../meshes/hand_r_pinky_link2.STL" />
+        <mesh name="hand_r_pinky_link3" file="../meshes/hand_r_pinky_link3.STL" />
+        <mesh name="hand_r_pinky_link4" file="../meshes/hand_r_pinky_link4.STL" />
+        <mesh name="hand_r_pinky_link4_tactile_pad" file="../meshes/hand_r_pinky_link4_tac.STL" />
+
+        <!-- Closed display shells. Original CAD meshes remain the collision shapes. -->
+        <mesh name="hand_l_base_link_shell_visual" file="../meshes/hand_l_base_link_shell_visual.STL" />
+        <mesh name="hand_l_thumb_link1_shell_visual" file="../meshes/hand_l_thumb_link1_shell_visual.STL" />
+        <mesh name="hand_l_thumb_link2_shell_visual" file="../meshes/hand_l_thumb_link2_shell_visual.STL" />
+        <mesh name="hand_l_thumb_link3_shell_visual" file="../meshes/hand_l_thumb_link3_shell_visual.STL" />
+        <mesh name="hand_l_thumb_link4_shell_visual" file="../meshes/hand_l_thumb_link4_shell_visual.STL" />
+        <mesh name="hand_l_thumb_link5_shell_visual" file="../meshes/hand_l_thumb_link5_shell_visual.STL" />
+        <mesh name="hand_l_index_link1_shell_visual" file="../meshes/hand_l_index_link1_shell_visual.STL" />
+        <mesh name="hand_l_index_link2_shell_visual" file="../meshes/hand_l_index_link2_shell_visual.STL" />
+        <mesh name="hand_l_index_link3_shell_visual" file="../meshes/hand_l_index_link3_shell_visual.STL" />
+        <mesh name="hand_l_middle_link1_shell_visual" file="../meshes/hand_l_middle_link1_shell_visual.STL" />
+        <mesh name="hand_l_middle_link2_shell_visual" file="../meshes/hand_l_middle_link2_shell_visual.STL" />
+        <mesh name="hand_l_middle_link3_shell_visual" file="../meshes/hand_l_middle_link3_shell_visual.STL" />
+        <mesh name="hand_l_ring_link1_shell_visual" file="../meshes/hand_l_ring_link1_shell_visual.STL" />
+        <mesh name="hand_l_ring_link2_shell_visual" file="../meshes/hand_l_ring_link2_shell_visual.STL" />
+        <mesh name="hand_l_ring_link3_shell_visual" file="../meshes/hand_l_ring_link3_shell_visual.STL" />
+        <mesh name="hand_l_pinky_link1_shell_visual" file="../meshes/hand_l_pinky_link1_shell_visual.STL" />
+        <mesh name="hand_l_pinky_link2_shell_visual" file="../meshes/hand_l_pinky_link2_shell_visual.STL" />
+        <mesh name="hand_l_pinky_link3_shell_visual" file="../meshes/hand_l_pinky_link3_shell_visual.STL" />
+        <mesh name="hand_r_base_link_shell_visual" file="../meshes/hand_r_base_link_shell_visual.STL" />
+        <mesh name="hand_r_thumb_link1_shell_visual" file="../meshes/hand_r_thumb_link1_shell_visual.STL" />
+        <mesh name="hand_r_thumb_link2_shell_visual" file="../meshes/hand_r_thumb_link2_shell_visual.STL" />
+        <mesh name="hand_r_thumb_link3_shell_visual" file="../meshes/hand_r_thumb_link3_shell_visual.STL" />
+        <mesh name="hand_r_thumb_link4_shell_visual" file="../meshes/hand_r_thumb_link4_shell_visual.STL" />
+        <mesh name="hand_r_thumb_link5_shell_visual" file="../meshes/hand_r_thumb_link5_shell_visual.STL" />
+        <mesh name="hand_r_index_link1_shell_visual" file="../meshes/hand_r_index_link1_shell_visual.STL" />
+        <mesh name="hand_r_index_link2_shell_visual" file="../meshes/hand_r_index_link2_shell_visual.STL" />
+        <mesh name="hand_r_index_link3_shell_visual" file="../meshes/hand_r_index_link3_shell_visual.STL" />
+        <mesh name="hand_r_middle_link1_shell_visual" file="../meshes/hand_r_middle_link1_shell_visual.STL" />
+        <mesh name="hand_r_middle_link2_shell_visual" file="../meshes/hand_r_middle_link2_shell_visual.STL" />
+        <mesh name="hand_r_middle_link3_shell_visual" file="../meshes/hand_r_middle_link3_shell_visual.STL" />
+        <mesh name="hand_r_ring_link1_shell_visual" file="../meshes/hand_r_ring_link1_shell_visual.STL" />
+        <mesh name="hand_r_ring_link2_shell_visual" file="../meshes/hand_r_ring_link2_shell_visual.STL" />
+        <mesh name="hand_r_ring_link3_shell_visual" file="../meshes/hand_r_ring_link3_shell_visual.STL" />
+        <mesh name="hand_r_pinky_link1_shell_visual" file="../meshes/hand_r_pinky_link1_shell_visual.STL" />
+        <mesh name="hand_r_pinky_link2_shell_visual" file="../meshes/hand_r_pinky_link2_shell_visual.STL" />
+        <mesh name="hand_r_pinky_link3_shell_visual" file="../meshes/hand_r_pinky_link3_shell_visual.STL" />
+  </asset>
+
+  <default class="main">
+    <default class="revolute_joint">
+      <joint type="hinge" stiffness="0" damping="0.5" armature="0.01" frictionloss="0.1"/>
+    </default>
+  </default>
+
+  <actuator>
+      <!-- Velocity servos are torque-limited so a blocked finger cannot keep
+           numerically tunnelling into a rigid object. -->
+      <velocity name="hand_l_thumb_joint1" joint="hand_l_thumb_joint1" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_l_thumb_joint2" joint="hand_l_thumb_joint2" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_l_thumb_joint3" joint="hand_l_thumb_joint3" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_l_thumb_joint5" joint="hand_l_thumb_joint5" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_l_index_joint1" joint="hand_l_index_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_index_joint2" joint="hand_l_index_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_index_joint3" joint="hand_l_index_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_index_joint4" joint="hand_l_index_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_middle_joint1" joint="hand_l_middle_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_l_middle_joint2" joint="hand_l_middle_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_l_middle_joint3" joint="hand_l_middle_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_l_middle_joint4" joint="hand_l_middle_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_l_ring_joint1" joint="hand_l_ring_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_ring_joint2" joint="hand_l_ring_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_ring_joint3" joint="hand_l_ring_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_ring_joint4" joint="hand_l_ring_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_l_pinky_joint1" joint="hand_l_pinky_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_l_pinky_joint2" joint="hand_l_pinky_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_l_pinky_joint3" joint="hand_l_pinky_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_l_pinky_joint4" joint="hand_l_pinky_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+
+      <velocity name="hand_r_thumb_joint1" joint="hand_r_thumb_joint1" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_r_thumb_joint2" joint="hand_r_thumb_joint2" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_r_thumb_joint3" joint="hand_r_thumb_joint3" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_r_thumb_joint5" joint="hand_r_thumb_joint5" kv="30" ctrlrange="-10 10" forcerange="-1.5 1.5"/>
+      <velocity name="hand_r_index_joint1" joint="hand_r_index_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_index_joint2" joint="hand_r_index_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_index_joint3" joint="hand_r_index_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_index_joint4" joint="hand_r_index_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_middle_joint1" joint="hand_r_middle_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_r_middle_joint2" joint="hand_r_middle_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_r_middle_joint3" joint="hand_r_middle_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_r_middle_joint4" joint="hand_r_middle_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_r_ring_joint1" joint="hand_r_ring_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_ring_joint2" joint="hand_r_ring_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_ring_joint3" joint="hand_r_ring_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_ring_joint4" joint="hand_r_ring_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.35 0.35"/>
+      <velocity name="hand_r_pinky_joint1" joint="hand_r_pinky_joint1" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_r_pinky_joint2" joint="hand_r_pinky_joint2" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_r_pinky_joint3" joint="hand_r_pinky_joint3" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+      <velocity name="hand_r_pinky_joint4" joint="hand_r_pinky_joint4" kv="30" ctrlrange="-10 10" forcerange="-0.4 0.4"/>
+  </actuator>
+</mujoco>

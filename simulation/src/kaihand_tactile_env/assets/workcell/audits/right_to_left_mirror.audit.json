@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "decision": "accepted",
+  "mirror_matrix": [
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "thresholds": {
+    "full_mesh_bidirectional_vertex_p95_mm": 0.02,
+    "mask_to_left_surface_max_mm": 0.1,
+    "relative_surface_area_error": 0.0001
+  },
+  "visual_acceptance": true,
+  "note": "The formal left runtime geometry is mirrored shell + fixed tactile pad.",
+  "fingertips": [
+    {
+      "right_link": "hand_r_thumb_link6",
+      "left_link": "hand_l_thumb_link6",
+      "left_link_mesh_representation": "split_shell",
+      "transform": "link-local y -> -y; triangle winding reversed",
+      "full_mesh_bidirectional_vertex_mean_mm": 0.0,
+      "full_mesh_bidirectional_vertex_p95_mm": 0.0,
+      "full_mesh_bidirectional_vertex_max_mm": 0.0,
+      "mask_to_left_surface_mean_mm": 0.0001810828367500851,
+      "mask_to_left_surface_p95_mm": 0.0002811046419841823,
+      "mask_to_left_surface_max_mm": 0.016265985861461083,
+      "relative_surface_area_error": 0.0,
+      "accepted": true
+    },
+    {
+      "right_link": "hand_r_index_link4",
+      "left_link": "hand_l_index_link4",
+      "left_link_mesh_representation": "split_shell",
+      "transform": "link-local y -> -y; triangle winding reversed",
+      "full_mesh_bidirectional_vertex_mean_mm": 0.0,
+      "full_mesh_bidirectional_vertex_p95_mm": 0.0,
+      "full_mesh_bidirectional_vertex_max_mm": 0.0,
+      "mask_to_left_surface_mean_mm": 0.00023788282932063918,
+      "mask_to_left_surface_p95_mm": 0.0004180958543428484,
+      "mask_to_left_surface_max_mm": 0.054204323387264185,
+      "relative_surface_area_error": 0.0,
+      "accepted": true
+    },
+    {
+      "right_link": "hand_r_middle_link4",
+      "left_link": "hand_l_middle_link4",
+      "left_link_mesh_representation": "split_shell",
+      "transform": "link-local y -> -y; triangle winding reversed",
+      "full_mesh_bidirectional_vertex_mean_mm": 0.0,
+      "full_mesh_bidirectional_vertex_p95_mm": 0.0,
+      "full_mesh_bidirectional_vertex_max_mm": 0.0,
+      "mask_to_left_surface_mean_mm": 0.0002378789088290773,
+      "mask_to_left_surface_p95_mm": 0.0004178890313757841,
+      "mask_to_left_surface_max_mm": 0.05420443684564043,
+      "relative_surface_area_error": 0.0,
+      "accepted": true
+    },
+    {
+      "right_link": "hand_r_ring_link4",
+      "left_link": "hand_l_ring_link4",
+      "left_link_mesh_representation": "split_shell",
+      "transform": "link-local y -> -y; triangle winding reversed",
+      "full_mesh_bidirectional_vertex_mean_mm": 0.0,
+      "full_mesh_bidirectional_vertex_p95_mm": 0.0,
+      "full_mesh_bidirectional_vertex_max_mm": 0.0,
+      "mask_to_left_surface_mean_mm": 0.00023787971520272764,
+      "mask_to_left_surface_p95_mm": 0.00041813250459404557,
+      "mask_to_left_surface_max_mm": 0.05420445520286741,
+      "relative_surface_area_error": 0.0,
+      "accepted": true
+    },
+    {
+      "right_link": "hand_r_pinky_link4",
+      "left_link": "hand_l_pinky_link4",
+      "left_link_mesh_representation": "split_shell",
+      "transform": "link-local y -> -y; triangle winding reversed",
+      "full_mesh_bidirectional_vertex_mean_mm": 0.0,
+      "full_mesh_bidirectional_vertex_p95_mm": 0.0,
+      "full_mesh_bidirectional_vertex_max_mm": 0.0,
+      "mask_to_left_surface_mean_mm": 0.0002378810540543643,
+      "mask_to_left_surface_p95_mm": 0.00041812845782014023,
+      "mask_to_left_surface_max_mm": 0.054204175706874094,
+      "relative_surface_area_error": 0.0,
+      "accepted": true
+    }
+  ]
+}

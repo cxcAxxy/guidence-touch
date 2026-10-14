@@ -1,0 +1,39 @@
+# Generated datasets (root paths only; source packages may contain a data module)
+/data/
+/datasets/
+/checkpoints/
+/runs/
+/outputs/
+/wandb/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.h5
+*.hdf5
+*.parquet
+*.npz
+*.npy
+*.mp4
+*.mkv
+*.avi
+*.webm
+*.tar
+*.tar.gz
+*.zip
+# Local credentials and machine-specific settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_ed25519*
+# Python and local build products
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.DS_Store

@@ -1,0 +1,7 @@
+{
+  "method": "accepted mirrored left assets + accepted right assets",
+  "mirror_audit": "src/kaihand_tactile_env/assets/workcell/audits/right_to_left_mirror.audit.json",
+  "probe_count": 350,
+  "per_hand_probe_count": 175,
+  "status": "accepted"
+}

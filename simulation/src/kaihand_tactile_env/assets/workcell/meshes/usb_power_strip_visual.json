@@ -1,0 +1,10 @@
+{
+  "description": "Original procedural white power-strip appearance inspired by the user reference; no electrical simulation.",
+  "active_target": "usb_socket_mouth (first USB-A aperture, local x=0)",
+  "other_apertures": "visual only; no added collision or task targets",
+  "files": {
+    "assets/workcell/meshes/usb_power_strip_shell_visual.STL": "a3635d632d0f7178ffcb1452109e06b85b17dafc90243c0e0dc1813dc9af1abf",
+    "assets/workcell/meshes/usb_power_strip_base_visual.STL": "5a05a653fba6dbf0ee14f509951748fc70cedb528eb2459b20812f5db7926927",
+    "tasks/usb_insert/power_strip_visual.xml": "512e6c6c0623aa0f0338d112936b86e18fbd665ea44a3be4720ea1efe609bd6a"
+  }
+}

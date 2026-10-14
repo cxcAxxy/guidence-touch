@@ -1,0 +1,81 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>触觉归一化检查</title><style>
+:root{color-scheme:light;--blue:#2563eb;--orange:#e87924;--text:#16324b}*{box-sizing:border-box}body{margin:0;background:#f2f5fa;color:var(--text);font-family:system-ui,"Microsoft YaHei",sans-serif;line-height:1.65}.wrap{max-width:1450px;padding:24px;margin:auto}h1{font-size:25px;margin:0 0 8px}h2{font-size:19px;margin:0 0 12px}p{margin:8px 0}.muted{color:#607286;font-size:13px}.card{background:white;border:1px solid #d8e1ec;border-radius:12px;padding:20px;margin:18px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.stat{background:#f5f8fc;border-radius:8px;padding:12px}.big{font-size:21px;font-weight:650}.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}select,input{font:inherit;border:1px solid #bdcbdc;border-radius:6px;padding:5px 8px;background:white;max-width:100%}label{font-size:14px}table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}th,td{padding:8px;border-bottom:1px solid #e6edf5;text-align:right}th:first-child,td:first-child{text-align:left}th{background:#f5f8fc}.table-scroll{overflow:auto}svg{display:block;width:100%;height:auto}svg text{font-family:inherit}.blue{color:var(--blue)}.orange{color:var(--orange)}.warn{color:#b42318}.note{background:#edf4ff;border-left:3px solid #6a94d5;padding:10px 14px;font-size:14px}.formula{font-family:ui-monospace,monospace;font-size:14px;background:#f8fafc;padding:12px;overflow:auto}.heat{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;max-width:350px;margin:auto}.cell{border:1px solid #dbe5f0;height:38px;display:flex;align-items:center;justify-content:center;font-size:11px;font-variant-numeric:tabular-nums;cursor:crosshair}.cell.out{outline:2px solid #d02626;outline-offset:-2px}.pairimage{text-align:center}.pairimage img{width:170px;image-rendering:auto;border:1px solid #bdcbdc;background:#808080}.fingerrow{cursor:pointer}.fingerrow.active{background:#edf4ff}a{color:#2563eb}.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px}.tooltip{min-height:45px;background:#f5f8fc;padding:10px;margin-top:12px;font-size:13px}.small{font-size:12px}.pill{display:inline-block;background:#e9f1fc;border-radius:12px;padding:2px 9px;font-size:12px}@media(max-width:850px){.grid,.stats{grid-template-columns:1fr}.wrap{padding:12px}.card{padding:14px}}
+</style></head><body><main class="wrap">
+<h1>触觉归一化：从力值到 DINO 输入</h1><p class="muted" id="scope"></p>
+<div class="note">这个页面检查数值映射，不给样本标注任务成功／失败。增强触觉来自局部接触合成，并非物理仿真的真值。全量分布统计覆盖所有原始接触点；下面六组配对特意选取不同变化，不能当作总体比例。</div>
+<section class="card"><h2>1. 当前实际使用的规则</h2><div class="formula">P = 0.5 + asinh(F / RMS) / (2 × asinh(32))<br>Z = (P − ImageNet mean) / ImageNet std</div><p>F 是每个接触点的力（N）。五指共用三个通道的固定 RMS；不按手指或样本重新缩放。零力映射为 0.5；±32×RMS 映射为 0 和 1。<b>模型输入不截断</b>，超过参考范围的值保留。</p><div id="rmsTable" class="table-scroll"></div><p class="muted">RMS 包括零力点。现用值来自旧干净训练集；表中另外两行只作尺度比较，均仅用训练集计算，本页不修改训练配置。</p></section>
+<section class="card"><h2>2. 全量数据的范围与分布</h2><div class="controls"><label>通道 <select id="channel"><option value="0">法向</option><option value="1">切向 0</option><option value="2">切向 1</option></select></label><label>统计范围 <select id="split"><option value="all">全部（训练＋验证）</option><option value="train">仅训练集</option><option value="val">仅验证集</option></select></label><label>分布横轴 <select id="stage"><option value="pixel">asinh 映射 P</option><option value="raw">原始力 F（N）</option><option value="ratio">F / RMS</option><option value="z">ImageNet 标准化 Z（插值前）</option></select></label><label><input id="nonzero" type="checkbox" checked> 分布排除零力点</label></div><div id="stats" class="stats"></div><div class="grid"><div><h3>固定映射曲线与 RMS 尺度比较</h3><div id="mapping"></div><p class="muted">蓝线：现用 RMS；虚线：本批干净训练 RMS；点线：干净＋10 倍增强训练 RMS。仅映射曲线做尺度对比，其他图表均采用当前配置。</p></div><div><h3>干净／增强分布</h3><div id="hist"></div><div class="legend"><span class="blue">━━ 干净</span><span class="orange">━━ 增强</span><span>纵轴：每个 bin 的占比，采用对数刻度</span></div><p class="muted">每种数据分别以自身接触点总数归一化，避免 10 倍增强量掩盖干净分布。浅绿区为 P 的 0～1 参考区；统计不包含插值和填充。</p></div></div><div id="rangeTable" class="table-scroll"></div><p class="muted">范围外比例的分母是该通道全部原始接触点（含零力），与“排除零力点”的分布选项无关。ImageNet 标准化的 Z 本来就允许负值和大于 1。</p></section>
+<section class="card"><h2>3. 同一起点的真实配对：干净触觉 vs 增强触觉</h2><div class="controls"><label>配对 <select id="case"></select></label><label>手指 <select id="finger"><option value="0">拇指</option><option value="1">食指</option><option value="2">中指</option><option value="3">无名指</option><option value="4">小指</option></select></label><label>热图数值 <select id="heatStage"><option value="pixel">asinh 映射 P</option><option value="raw">原始力 F（N）</option><option value="ratio">F / RMS</option><option value="z">ImageNet 标准化 Z（插值前）</option></select></label></div><p id="caseMeta" class="muted"></p><div id="fingerTable" class="table-scroll"></div><p class="muted">点击五指表的任意一行切换手指。接触定义：该指法向合力 &gt; 0.001 N；不靠归一化后的颜色判断接触。</p><div id="forceTable" class="table-scroll"></div><div class="grid"><div><h3 class="blue">干净触觉：7×5 接触点</h3><div id="cleanHeat" class="heat"></div></div><div><h3 class="orange">增强触觉：7×5 接触点</h3><div id="augHeat" class="heat"></div></div></div><p id="heatLegend" class="muted"></p><div class="tooltip" id="tooltip">悬停在任意接触点，查看同一位置的力、映射值和变化。</div><div class="grid"><div class="pairimage"><h3>干净：224×224 力图</h3><img id="cleanImage" alt="干净力图"></div><div class="pairimage"><h3>增强：224×224 力图</h3><img id="augImage" alt="增强力图"></div></div><p class="muted">三个力通道分别显示为 R/G/B。实际流程：7×5 → 双线性插值到 224×160 → 左右各补 32 像素（0.5）→ 一次 ImageNet 标准化 → DINO。这里的 PNG 为了显示才截断至 0～1、转为 8 位；模型始终保留 FP32 值。上方红框标出原始点的参考范围外值。</p><p id="productionRange" class="small"></p></section>
+<section class="card"><h2>4. 怎样判断有没有问题</h2><p><a href="../tactile_information_v1/index.html">进一步查看：合力、接触位置与 DINO 特征的信息保留统计</a></p><p>先看接触变化是否仍能被映射区分，再检查极少数参考范围外值。高力区的差值会被 asinh 压缩，但在原始接触点上函数仍单调，没有把不同力值硬截成同一个值。接近零力时的变化保留得更明显。</p><p>数值检查通过不等于 DINO 能正确理解力图，也不等于打分器会利用触觉。下一层验证需要检查触觉特征变化、触觉消融和真实执行效果。</p><p id="checks" class="muted"></p><p><a href="overview.png">下载总体分布图 PNG</a> · <a href="report.json">查看完整统计 JSON</a></p></section></main>
+<script id="data" type="application/json">__DATA_JSON__</script><script>
+'use strict';
+const D=JSON.parse(document.getElementById('data').textContent), names=['法向','切向 0','切向 1'], fingers=['拇指','食指','中指','无名指','小指'], means=[.485,.456,.406], stds=[.229,.224,.225];
+const $=id=>document.getElementById(id), sum=a=>a.reduce((x,y)=>x+y,0), fmt=(v,n=6)=>Number(v).toFixed(n), pmap=(f,c,r=D.rms)=>Math.fround(.5+Math.asinh(f/r[c])/(2*Math.asinh(D.reference_multiple)));
+const tbl=(headers,rows)=>'<table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+$('scope').textContent=`${D.episodes} 条 episode；干净 ${D.pairs.clean.all.toLocaleString()} 对，增强 ${D.pairs.augmented.all.toLocaleString()} 对。全量扫描生成时间（UTC）：${D.created_at_utc}`;
+$('rmsTable').innerHTML=tbl(['尺度来源','法向 RMS（N）','切向 0 RMS（N）','切向 1 RMS（N）'],[['当前配置（旧干净训练集）',...D.rms.map(x=>fmt(x,9))],['本批全部干净训练集',...D.new_clean_train_rms.map(x=>fmt(x,9))],['本批干净＋10 倍增强训练集',...D.joint_train_rms.map(x=>fmt(x,9))],['当前 ±32×RMS 参考半宽（N）',...D.rms.map(x=>fmt(x*32,6))]]);
+$('case').innerHTML=D.cases.map((x,i)=>`<option value="${i}">${i+1}. ${x.title}</option>`).join('');
+function plot(target,series,xmin,xmax,ymin,ymax,xlabel,ylabel,band=null,log=false){
+ const w=620,h=330,L=65,R=18,T=12,B=53,X=x=>L+(x-xmin)/(xmax-xmin)*(w-L-R),Y=y=>T+(ymax-y)/(ymax-ymin)*(h-T-B);
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${ylabel} 与 ${xlabel} 的关系">`;
+ if(band){const a=Math.max(xmin,band[0]),b=Math.min(xmax,band[1]);if(b>a)svg+=`<rect x="${X(a)}" y="${T}" width="${X(b)-X(a)}" height="${h-T-B}" fill="#e6f5ea"/>`;}
+ for(let i=0;i<=4;i++){const x=xmin+(xmax-xmin)*i/4,y=ymin+(ymax-ymin)*i/4;
+ svg+=`<line x1="${L}" y1="${Y(y)}" x2="${w-R}" y2="${Y(y)}" stroke="#dce5ed"/><text x="${L-8}" y="${Y(y)+4}" text-anchor="end" font-size="11">${log?'10^'+y.toFixed(0):y.toFixed(2)}</text><text x="${X(x)}" y="${h-B+18}" text-anchor="middle" font-size="11">${Math.abs(x)>10?x.toFixed(0):x.toFixed(2)}</text>`;
+ }
+ for(const s of series){let path='';s.points.forEach((v,i)=>{path+=(i?'L':'M')+X(v[0]).toFixed(2)+','+Y(Math.max(ymin,Math.min(ymax,v[1]))).toFixed(2);});svg+=`<path d="${path}" stroke="${s.color}" fill="none" stroke-width="2" ${s.dash?'stroke-dasharray="'+s.dash+'"':''}/>`;}
+ svg+=`<text x="${(L+w-R)/2}" y="${h-10}" text-anchor="middle" font-size="12">${xlabel}</text><text x="16" y="${h/2}" transform="rotate(-90,16,${h/2})" text-anchor="middle" font-size="12">${ylabel}</text></svg>`;
+ $(target).innerHTML=svg;
+}
+function drawStats(){
+ const c=+$('channel').value,split=$('split').value,s=D.exact.clean[split],a=D.exact.augmented[split];
+ $('stats').innerHTML=[['当前 RMS',fmt(D.rms[c],6)+' N','所有样本使用相同尺度'],['干净参考范围外',fmt(s.outside_fraction[c]*100,7)+'%',`${s.outside[c].toLocaleString()} / ${s.count.toLocaleString()} 点`],['增强参考范围外',fmt(a.outside_fraction[c]*100,7)+'%',`${a.outside[c].toLocaleString()} / ${a.count.toLocaleString()} 点`]].map(x=>`<div class="stat">${x[0]}<div class="big">${x[1]}</div><div class="muted">${x[2]}</div></div>`).join('');
+ const edges=D.raw_edges[c],xs=Array.from({length:401},(_,i)=>edges[0]+(edges.at(-1)-edges[0])*i/400);
+ plot('mapping',[[D.rms,'#2563eb',''],[D.new_clean_train_rms,'#697b94','7 4'],[D.joint_train_rms,'#8b5cf6','2 4']].map(([r,color,dash])=>({color,dash,points:xs.map(x=>[x,pmap(x,c,r)])})),edges[0],edges.at(-1),-.15,1.15,'原始力 F（N）','asinh 映射 P',[-32*D.rms[c],32*D.rms[c]]);
+ const stage=$('stage').value,israw=stage==='raw'||stage==='ratio',he=israw?D.raw_edges[c]:D.pixel_edges;
+ const transform=x=>stage==='ratio'?x/D.rms[c]:stage==='z'?(x-means[c])/stds[c]:x;
+ const series=[['clean','#2563eb'],['augmented','#e87924']].map(([kind,color])=>{
+  const st=D.exact[kind][split],hh=(israw?st.raw_hist:st.pixel_hist)[c].slice(),zero=israw?0:.5;
+  if($('nonzero').checked){let bin=he.findIndex((x,i)=>i<he.length-1&&zero>=x&&zero<he[i+1]);hh[bin]-=st.zeros[c];}
+  const total=st.count-($('nonzero').checked?st.zeros[c]:0);
+  return {color,points:hh.map((v,i)=>[transform((he[i]+he[i+1])/2),v>0?Math.log10(v/total):-8])};
+ });
+ const bands={raw:[-32*D.rms[c],32*D.rms[c]],ratio:[-32,32],pixel:[0,1],z:[-means[c]/stds[c],(1-means[c])/stds[c]]};
+ const labels={raw:'原始力 F（N）',ratio:'F / RMS',pixel:'asinh 映射 P',z:'ImageNet 标准化 Z（插值前）'};
+ plot('hist',series,transform(he[0]),transform(he.at(-1)),-8,0,labels[stage],'bin 占比（对数）',bands[stage],true);
+ $('rangeTable').innerHTML=tbl(['当前通道：'+names[c],'原始最小／最大（N）','P 最小／最大','零力点比例','参考范围外点数'],[['干净',`${fmt(s.raw_min[c])} / ${fmt(s.raw_max[c])}`,`${fmt(s.pixel_min[c])} / ${fmt(s.pixel_max[c])}`,fmt(s.zeros[c]/s.count*100,2)+'%',s.outside[c]],['增强',`${fmt(a.raw_min[c])} / ${fmt(a.raw_max[c])}`,`${fmt(a.pixel_min[c])} / ${fmt(a.pixel_max[c])}`,fmt(a.zeros[c]/a.count*100,2)+'%',a.outside[c]]]);
+ drawCase();
+}
+function drawCase(){
+ const item=D.cases[+$('case').value],f=+$('finger').value,c=+$('channel').value,stage=$('heatStage').value;
+ const clean=item.clean,aug=item.augmented;
+ $('tooltip').textContent='悬停在任意接触点，查看当前手指／通道的力、映射值和变化。';
+ $('caseMeta').textContent=`episode_${String(item.episode).padStart(6,'0')} · ${item.split} · 原始帧 ${item.frame} · 干净行 ${item.clean_row} → 增强行 ${item.row} · 变体 ${item.variant}。选中通道：${names[c]}。`;
+ const fc=clean.map(t=>sum(t[0].flat())),fa=aug.map(t=>sum(t[0].flat()));
+ const rows=fingers.map((name,i)=>[name,fmt(fc[i]),fmt(fa[i]),fc[i]>.001?'有接触':'无接触',fa[i]>.001?'有接触':'无接触',item.displacement_mm[i].map(x=>fmt(x,3)).join(' / ')]);
+ $('fingerTable').innerHTML=tbl(['手指','干净法向合力（N）','增强法向合力（N）','干净接触','增强接触','请求法向 / 切0 / 切1（mm）'],rows);
+ $('fingerTable').querySelectorAll('tbody tr').forEach((row,i)=>{row.className='fingerrow'+(i===f?' active':'');row.onclick=()=>{$('finger').value=i;drawCase();};});
+ $('forceTable').innerHTML=tbl([fingers[f]+'：三通道合力','干净（N）','增强（N）','增强 − 干净（N）','单点 P 最大差值'],names.map((name,j)=>{
+  const x=clean[f][j].flat(),y=aug[f][j].flat();return[name,fmt(sum(x)),fmt(sum(y)),fmt(sum(y)-sum(x)),fmt(Math.max(...x.map((v,k)=>Math.abs(pmap(y[k],j)-pmap(v,j)))))]}));
+ const scale=Math.max(Math.abs(D.exact.clean.all.raw_min[c]),Math.abs(D.exact.clean.all.raw_max[c]),Math.abs(D.exact.augmented.all.raw_min[c]),Math.abs(D.exact.augmented.all.raw_max[c]));
+ const value=v=>stage==='raw'?v:stage==='ratio'?v/D.rms[c]:stage==='pixel'?pmap(v,c):(pmap(v,c)-means[c])/stds[c];
+ const rgb=t=>{const u=Math.min(1,Math.abs(t)),end=t>=0?[59,114,202]:[233,125,57];return 'rgb('+end.map(x=>Math.round(250+(x-250)*u)).join(',')+')';};
+ for(const [kind,id] of [['clean','cleanHeat'],['augmented','augHeat']]){
+  $(id).innerHTML=item[kind][f][c].flat().map((v,k)=>{
+   const p=pmap(v,c),out=p<0||p>1,num=value(v),intensity=stage==='raw'||stage==='ratio'?v/scale:(p-.5)/.65;
+   return `<div class="cell${out?' out':''}" style="background:${rgb(intensity)}" data-cell="${k}">${fmt(num,stage==='raw'?4:3)}</div>`;
+  }).join('');
+  $(id).querySelectorAll('[data-cell]').forEach(cell=>{cell.onmouseenter=()=>{
+   const k=+cell.dataset.cell,a=clean[f][c].flat()[k],b=aug[f][c].flat()[k];$('tooltip').textContent=`${fingers[f]} · ${names[c]} · 第 ${Math.floor(k/5)+1} 行 ${k%5+1} 列：F ${fmt(a)} → ${fmt(b)} N（差 ${fmt(b-a)}）；F/RMS ${fmt(a/D.rms[c],3)} → ${fmt(b/D.rms[c],3)}；P ${fmt(pmap(a,c))} → ${fmt(pmap(b,c))}（差 ${fmt(pmap(b,c)-pmap(a,c))}）。`;
+  };});
+ }
+ $('heatLegend').textContent=(stage==='raw'||stage==='ratio'?`颜色以零力为中心、按当前通道全数据最大绝对力 ${fmt(scale)} N 统一缩放。`:'颜色以 P=0.5（零力）为中心，统一采用 P=-0.15～1.15 的尺度。')+' 同一通道干净／增强使用相同色标；蓝色为正，橙色为负；紅框表示 P 在 0～1 参考范围外。';
+ $('cleanImage').src=item.images.clean[f];$('augImage').src=item.images.augmented[f];
+ const cr=item.dino_range.clean[f*3+c],ar=item.dino_range.augmented[f*3+c];
+ $('productionRange').textContent=`实际插值、填充后的 ${names[c]} DINO 输入 Z 范围（此手指）：干净 ${fmt(cr[0],4)}～${fmt(cr[1],4)}；增强 ${fmt(ar[0],4)}～${fmt(ar[1],4)}。Z 的数值范围不限定在 0～1。`;
+}
+$('checks').textContent=`检查通过：全量有限值及分布统计；6 组配对（60 张手指力图）与生产 TactileDinoPreprocessor 对比，最大误差 ${D.verification.numpy_to_production_max_error.toExponential(2)}；零力 P=0.5；ImageNet 标准化一致；参考范围外值未截断。`;
+['channel','split','stage','nonzero'].forEach(id=>$(id).addEventListener('change',drawStats));
+['finger','heatStage'].forEach(id=>$(id).addEventListener('change',drawCase));
+$('case').onchange=()=>{$('finger').value=D.cases[+$('case').value].default_finger;drawCase();};
+$('finger').value=D.cases[0].default_finger;drawStats();
+</script></body></html>

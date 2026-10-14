@@ -1,0 +1,204 @@
+<mujoco model="kaihand_usb_insert">
+  <include file="../../shared/mjcf/robot.xml"/>
+
+  <!--
+    Original primitive USB-A benchmark geometry; no external meshes/code.
+    Both connector-local frames point +X into the socket, which is rotated
+    so the opening faces world +Z and insertion runs along world -Z. The 12 x 4.5 mm
+    plug shell has four separate walls and a genuinely open upper cavity.
+    Socket opening: 12.6 x 5.1 mm, or 0.3 mm clearance per side.
+    Compliant spring shoes press on opposite shell faces inside the bore.
+    These dimensions prioritize stable contact simulation, not USB compliance.
+  -->
+  <!-- Keep the convex fingertip/handle contact count from changing aggregate
+       compliance. This option is USB-local; analytic box contacts at the socket
+       still use their own manifold. Shared robot and tactile geometry stay intact. -->
+  <!-- Harden friction relative to normal compliance to reduce slow pad creep;
+       this changes neither the Coulomb coefficients nor the grip command. -->
+  <option impratio="5">
+    <flag multiccd="disable"/>
+  </option>
+  <contact>
+    <!-- An effective fingertip patch resists slide, twist, and rolling.
+         The last three friction coefficients are moment arms in metres:
+         5 mm torsional / 4 mm rolling. Normal solref/solimp retain the previous
+         mixed pad/handle values. This is a reduced contact model, not soft skin. -->
+    <pair name="usb_thumb_grip" geom1="hand_r_thumb_link6_tactile_pad_col"
+          geom2="usb_plug_handle" condim="6"
+          friction="1.1 1.1 0.005 0.004 0.004"
+          solref="0.012 1" solimp="0.925 0.97 0.00055" margin="0.00002"/>
+    <pair name="usb_index_grip" geom1="hand_r_index_link4_tactile_pad_col"
+          geom2="usb_plug_handle" condim="6"
+          friction="1.1 1.1 0.005 0.004 0.004"
+          solref="0.012 1" solimp="0.925 0.97 0.00055" margin="0.00002"/>
+  </contact>
+  <default>
+    <default class="usb_collision">
+      <!-- Bits: world=1, arm=2, hand=1024/2048, tactile=4096, scene=8192. -->
+      <geom type="box" contype="15363" conaffinity="15363" group="0"
+            condim="4" friction="0.6 0.005 0.0001" margin="0.00002"
+            solref="0.004 1" solimp="0.95 0.99 0.0001" mass="0"/>
+    </default>
+    <default class="usb_visual">
+      <geom type="box" contype="0" conaffinity="0" group="1" mass="0"/>
+    </default>
+  </default>
+
+  <asset>
+    <material name="usb_shell_metal" rgba="0.74 0.77 0.80 1"
+              specular="0.70" shininess="0.70"/>
+    <material name="usb_grip_rubber" rgba="0.045 0.050 0.055 1"
+              specular="0.12" shininess="0.18"/>
+    <material name="usb_insulator" rgba="0.08 0.23 0.40 1"
+              specular="0.18" shininess="0.25"/>
+    <material name="usb_fixture" rgba="0.91 0.91 0.89 1"
+              specular="0.18" shininess="0.28"/>
+    <material name="usb_gold" rgba="0.76 0.58 0.24 1"
+              specular="0.65" shininess="0.60"/>
+    <material name="usb_mark" rgba="0.70 0.74 0.78 1"
+              specular="0.15" shininess="0.20"/>
+    <material name="strip_white" rgba="0.94 0.94 0.92 1" specular="0.20" shininess="0.30"/>
+    <material name="strip_base_white" rgba="0.83 0.84 0.82 1" specular="0.15" shininess="0.20"/>
+    <material name="strip_recess" rgba="0.025 0.028 0.030 1" specular="0.05"/>
+    <material name="strip_seam" rgba="0.42 0.44 0.43 1" specular="0.10"/>
+    <mesh name="strip_shell" file="usb_power_strip_shell_visual.STL"/>
+    <mesh name="strip_base" file="usb_power_strip_base_visual.STL"/>
+  </asset>
+
+  <worldbody>
+    <!-- Head/front/overhead all use shared robot calibration. -->
+    <camera name="usb_closeup" pos="0.50 0.02 0.91" fovy="35"
+            xyaxes="-0.95103407 -0.30908607 0 0.21840215 -0.67200661 0.70760696"/>
+
+    <!-- Fixed support rests on the original z=.680 large tabletop. -->
+    <body name="usb_fixture" pos="0.620 -0.180 0.680">
+      <geom name="usb_fixture_base" class="usb_collision"
+            pos="0 0 0.005" size="0.032 0.026 0.005" material="usb_fixture"/>
+      <!-- Low pedestal supports the backstop from below. Top is z=.707. -->
+      <geom name="usb_fixture_post" class="usb_collision"
+            pos="0 0 0.0185" size="0.015 0.020 0.0085" material="usb_fixture"/>
+      <!-- Four housing pieces surround, but never fill, the upright bore.
+           The metal socket lip stands 1 mm above this casing. -->
+      <geom name="usb_fixture_rim_x_pos" class="usb_collision"
+            pos="0.0092 0 0.033" size="0.0058 0.020 0.006" material="usb_fixture"/>
+      <geom name="usb_fixture_rim_x_neg" class="usb_collision"
+            pos="-0.0092 0 0.033" size="0.0058 0.020 0.006" material="usb_fixture"/>
+      <geom name="usb_fixture_rim_y_pos" class="usb_collision"
+            pos="0 0.0136 0.033" size="0.0034 0.0064 0.006" material="usb_fixture"/>
+      <geom name="usb_fixture_rim_y_neg" class="usb_collision"
+            pos="0 -0.0136 0.033" size="0.0034 0.0064 0.006" material="usb_fixture"/>
+    </body>
+
+    <!-- Rotation +90 deg about Y: the mouth faces up and local +X points down. -->
+    <body name="usb_socket" pos="0.620 -0.180 0.720"
+          quat="0.7071067811865476 0 0.7071067811865476 0">
+      <site name="usb_socket_mouth" pos="0 0 0" size="0.001"
+            rgba="0.15 0.9 0.35 0.8" group="3"/>
+      <!-- Four distinct collision walls leave the 12.6 x 5.1 mm hole open. -->
+      <geom name="usb_socket_wall_left" class="usb_collision"
+            pos="0.0065 0.0067 0" size="0.0065 0.0004 0.00255" material="usb_shell_metal"/>
+      <geom name="usb_socket_wall_right" class="usb_collision"
+            pos="0.0065 -0.0067 0" size="0.0065 0.0004 0.00255" material="usb_shell_metal"/>
+      <geom name="usb_socket_wall_top" class="usb_collision"
+            pos="0.0065 0 0.00295" size="0.0065 0.0071 0.0004" material="usb_shell_metal"/>
+      <geom name="usb_socket_wall_bottom" class="usb_collision"
+            pos="0.0065 0 -0.00295" size="0.0065 0.0071 0.0004" material="usb_shell_metal"/>
+      <!-- The insulating stop resolves contact over 12 ms (six physics steps),
+           rather than an almost instantaneous 4 ms impact. Geometry and load
+           limits still constrain depth; this is not a filtered force signal. -->
+      <geom name="usb_socket_backstop" class="usb_collision"
+            pos="0.0125 0 0" size="0.0005 0.0071 0.00335"
+            priority="1" condim="3" solref="0.012 1"
+            friction="0.2 0.00005 0.00001" material="usb_insulator"/>
+      <!-- Upper tongue mates only with the plug's upper hollow region. -->
+      <geom name="usb_socket_tongue" class="usb_collision"
+            pos="0.0075 0 0.00075" size="0.0045 0.0054 0.00065" material="usb_insulator"/>
+      <geom name="usb_socket_contact_1_visual" class="usb_visual"
+            pos="0.007 -0.00375 0.000085" size="0.0035 0.00065 0.000015" material="usb_gold"/>
+      <geom name="usb_socket_contact_2_visual" class="usb_visual"
+            pos="0.007 -0.00125 0.000085" size="0.0035 0.00065 0.000015" material="usb_gold"/>
+      <geom name="usb_socket_contact_3_visual" class="usb_visual"
+            pos="0.007 0.00125 0.000085" size="0.0035 0.00065 0.000015" material="usb_gold"/>
+      <geom name="usb_socket_contact_4_visual" class="usb_visual"
+            pos="0.007 0.00375 0.000085" size="0.0035 0.00065 0.000015" material="usb_gold"/>
+
+      <!-- Two passive, rounded contact shoes approximate shell retention
+           springs. Each yields outwards by ~0.30 mm when the shell enters,
+           giving ~0.36 N normal preload at 1200 N/m. Contact friction, not
+           an applied plug wrench or a tactile offset, resists insertion.
+           Shallow ellipsoidal ramps spread the lead-in across millimetres,
+           avoiding a steep hemisphere wedging against the shell tip.
+           Each shoe's 5 g effective mass and damping resolve its compliance
+           at the existing 2 ms step; this is a parameterized approximation. -->
+      <body name="usb_socket_spring_top" pos="0.006 0 0.00255">
+        <joint name="usb_socket_spring_top_slide" type="slide" axis="0 0 1"
+               limited="true" range="0 0.0015" stiffness="1200" springref="0"
+               damping="3" armature="0"/>
+        <inertial pos="0 0 0" mass="0.005" diaginertia="1e-8 1e-8 1e-8"/>
+        <geom name="usb_socket_spring_top_pad_left" class="usb_collision" type="ellipsoid"
+              pos="0 -0.0025 0" size="0.003 0.0012 0.0006"
+              contype="16384" conaffinity="0" priority="1" condim="3" material="usb_gold"/>
+        <geom name="usb_socket_spring_top_pad_right" class="usb_collision" type="ellipsoid"
+              pos="0 0.0025 0" size="0.003 0.0012 0.0006"
+              contype="16384" conaffinity="0" priority="1" condim="3" material="usb_gold"/>
+      </body>
+      <body name="usb_socket_spring_bottom" pos="0.006 0 -0.00255">
+        <joint name="usb_socket_spring_bottom_slide" type="slide" axis="0 0 -1"
+               limited="true" range="0 0.0015" stiffness="1200" springref="0"
+               damping="3" armature="0"/>
+        <inertial pos="0 0 0" mass="0.005" diaginertia="1e-8 1e-8 1e-8"/>
+        <geom name="usb_socket_spring_bottom_pad_left" class="usb_collision" type="ellipsoid"
+              pos="0 -0.0025 0" size="0.003 0.0012 0.0006"
+              contype="16384" conaffinity="0" priority="1" condim="3" material="usb_gold"/>
+        <geom name="usb_socket_spring_bottom_pad_right" class="usb_collision" type="ellipsoid"
+              pos="0 0.0025 0" size="0.003 0.0012 0.0006"
+              contype="16384" conaffinity="0" priority="1" condim="3" material="usb_gold"/>
+      </body>
+    </body>
+
+    <!-- A freely moving 18 g dongle, initially 0.5 mm above the tabletop. -->
+    <body name="usb_plug" pos="0.500 -0.180 0.6865">
+      <freejoint name="usb_plug_freejoint"/>
+      <!-- Explicit inertia owns mass; all visual/collision geoms have mass=0. -->
+      <inertial pos="0.003 0 0" mass="0.018"
+                diaginertia="0.00000070 0.00000210 0.00000250"/>
+      <site name="usb_plug_tip" pos="0.027 0 0" size="0.0008"
+            rgba="1 0.3 0.1 0.8" group="3"/>
+      <site name="usb_plug_grasp" pos="0 0 0" size="0.0015"
+            rgba="0.1 0.7 1 0.8" group="3"/>
+      <geom name="usb_plug_handle" class="usb_collision"
+            pos="-0.0005 0 0" size="0.0145 0.009 0.006" friction="1.1 0.005 0.0001" material="usb_grip_rubber"/>
+      <!-- A 1 mm narrow neck separates the grip shoulder from the socket
+           mouth when the 12 mm shell reaches the backstop. Without this
+           clearance the broad handle hits the lip before the tip bottoms. -->
+      <geom name="usb_plug_neck" class="usb_collision"
+            pos="0.0145 0 0" size="0.0005 0.0055 0.0019" material="usb_insulator"/>
+      <geom name="usb_plug_orientation_mark_visual" class="usb_visual"
+            pos="0.006 0 0.00602" size="0.005 0.0015 0.00002" material="usb_mark"/>
+      <!-- No convex hull spanning the hole: independent 0.35 mm walls. -->
+      <geom name="usb_plug_shell_left" class="usb_collision"
+            pos="0.021 0.005825 0" size="0.006 0.000175 0.0019" material="usb_shell_metal"/>
+      <geom name="usb_plug_shell_right" class="usb_collision"
+            pos="0.021 -0.005825 0" size="0.006 0.000175 0.0019" material="usb_shell_metal"/>
+      <geom name="usb_plug_shell_top" class="usb_collision"
+            pos="0.021 0 0.002075" size="0.006 0.006 0.000175" conaffinity="31747" material="usb_shell_metal"/>
+      <geom name="usb_plug_shell_bottom" class="usb_collision"
+            pos="0.021 0 -0.002075" size="0.006 0.006 0.000175" conaffinity="31747" material="usb_shell_metal"/>
+      <geom name="usb_plug_insulator" class="usb_collision"
+            pos="0.02075 0 -0.00105" size="0.00575 0.0055 0.0008" material="usb_insulator"/>
+      <geom name="usb_plug_contact_1_visual" class="usb_visual"
+            pos="0.0215 -0.00375 -0.000235" size="0.0045 0.00065 0.000015" material="usb_gold"/>
+      <geom name="usb_plug_contact_2_visual" class="usb_visual"
+            pos="0.0215 -0.00125 -0.000235" size="0.0045 0.00065 0.000015" material="usb_gold"/>
+      <geom name="usb_plug_contact_3_visual" class="usb_visual"
+            pos="0.0215 0.00125 -0.000235" size="0.0045 0.00065 0.000015" material="usb_gold"/>
+      <geom name="usb_plug_contact_4_visual" class="usb_visual"
+            pos="0.0215 0.00375 -0.000235" size="0.0045 0.00065 0.000015" material="usb_gold"/>
+    </body>
+    <!-- Append display furniture so original robot/socket/plug IDs stay stable.
+         The existing first USB-A bore above is the only mechanical target. -->
+    <include file="power_strip_visual.xml"/>
+  </worldbody>
+
+  <include file="../../shared/mjcf/control.xml"/>
+</mujoco>
